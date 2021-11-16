@@ -1,0 +1,18 @@
+<launch>
+    <arg name="use_static_tf" default="true" />
+    <node pkg="tf" type="static_transform_publisher" name="dwm_static_tf"
+      args="2.5 2.5 0 3.14159 0 0 map uwb_map 30"
+      if="$(arg use_static_tf)" />
+
+
+    <!--Exctract info from dwm1001 dev boards, filter them and publish them into topics-->
+    <node pkg="uwb_citrack_ros" type="uwb_citrack_dwm1001.py" name="uwb_citrack_dwm1001" output="screen">
+
+        <rosparam file="$(find uwb_citrack_ros)/config/params_dwm1001.yaml" command="load"/>
+        <!-- param name="serial_port_name"      value="/dev/ttyACM0" /--> <!-- Name of serial port -->
+        <!-- param name="serial_baud_rate"      value="115200" /-->  <!--Baudrate of serial port-->
+        
+
+    </node>    
+
+</launch>
