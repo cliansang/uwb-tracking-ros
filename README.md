@@ -1,4 +1,4 @@
-# ROS Interface Node for DWM1001 Tags
+# ROS Interface Node for Decawave's DWM1001 and EVK1000 Dev-Boards Demos
 
 This repo extends the interfaces provided by <https://github.com/TIERS/ros-dwm1001-uwb-localization.git> and <https://github.com/20chix/dwm1001_ros.git> for tracking multiple UWB tags using DWM1001 Devlopment boards specifically MDEK1001. The code has been tested under Ubuntu 20.04/ROS noetic distribution.
 
