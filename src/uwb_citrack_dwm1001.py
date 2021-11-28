@@ -5,11 +5,12 @@
 """
 
 import rospy, time, serial, os
-from dwm1001_apiCommands            import DWM1001_API_COMMANDS
 
-from geometry_msgs.msg import Pose
+from dwm1001_apiCommands import DWM1001_API_COMMANDS
+
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Odometry
+
 
 class dwm1001_localizer:
 
@@ -115,49 +116,49 @@ class dwm1001_localizer:
             tag_id = str(arrayData[1], 'UTF8')  # IDs in 0 - 15
             tag_macID = str(arrayData[2], 'UTF8')
 
-            p = PoseStamped()
-            p.pose.position.x = float(arrayData[3])
-            p.pose.position.y = float(arrayData[4])
-            p.pose.position.z = float(arrayData[5])
-            p.pose.orientation.x = 0.0
-            p.pose.orientation.y = 0.0
-            p.pose.orientation.z = 0.0
-            p.pose.orientation.w = 1.0
-            p.header.stamp = rospy.Time.now()   
-            p.header.frame_id = tag_macID # TODO: Currently, MAC ID of the Tag is set as a frame ID 
+            ps = PoseStamped()
+            ps.pose.position.x = float(arrayData[3])
+            ps.pose.position.y = float(arrayData[4])
+            ps.pose.position.z = float(arrayData[5])
+            ps.pose.orientation.x = 0.0
+            ps.pose.orientation.y = 0.0
+            ps.pose.orientation.z = 0.0
+            ps.pose.orientation.w = 1.0
+            ps.header.stamp = rospy.Time.now()   
+            ps.header.frame_id = tag_macID # TODO: Currently, MAC ID of the Tag is set as a frame ID 
 
             if tag_id not in self.topics :
                 self.topics[tag_id] = rospy.Publisher("/dwm1001/tagId_" + tag_macID + "/pose", PoseStamped, queue_size=100)
                 # self.topics[tag_id] = rospy.Publisher("/dwm1001/tagId_"+ str(int(tag_id)) + "/position", PoseStamped, queue_size=100)
                 #rospy.loginfo("New tag {}. x: {}m, y: {}m, z: {}m".format(
                 #    str(tag_id),
-                #    p.pose.position.x,
-                #    p.pose.position.y,
-                #    p.pose.position.z
+                #    ps.pose.position.x,
+                #    ps.pose.position.y,
+                #    ps.pose.position.z
                 #))
             
-            self.topics[tag_id].publish(p)
+            self.topics[tag_id].publish(ps)
 
             if self.verbose :
                 rospy.loginfo("Tag " + str(tag_macID) + ": "
                     + " x: "
-                    + str(p.pose.position.x)
+                    + str(ps.pose.position.x)
                     + " y: "
-                    + str(p.pose.position.y)
+                    + str(ps.pose.position.y)
                     + " z: "
-                    + str(p.pose.position.z)
+                    + str(ps.pose.position.z)
                 )
             
             # publish tag as Visual Odometry
-            # The following code snippet is copied from Michael implementation
+            # The following code snippet is copied from Michael implementation 
             odo = Odometry()
-            odo.child_frame_id ="uwb_map" # "base_link"
+            odo.child_frvoame_id ="uwb_map" # "base_link"
             odo.header.frame_id = "odom"
             odo.pose.pose.position.x = p.pose.position.x # tag.x
             odo.pose.pose.position.y = p.pose.position.y # tag.y
             odo.pose.covariance = [99, 0, 0, 0, 0, 0,   0, 99, 0, 0, 0, 0,  0, 0, 99, 0, 0, 0,  0, 0,
                                    0, 99999, 0, 0, 0, 0, 0, 0, 99999, 0, 0, 0, 0, 0, 0, 99999]  # large covariance on rot z
-            pub_odom = rospy.Publisher('/vo', Odometry, queue_size=1)
+            pub_odom = rospy.Publisher('/', Odometry, queue_size=1)
             pub_odom.publish(odo)
 
 
