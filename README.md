@@ -1,6 +1,8 @@
 # ROS Interface for Decawave's DWM1001 and EVK1000 Dev-Boards Demos
 
-This repo extends the interfaces provided by <https://github.com/TIERS/ros-dwm1001-uwb-localization.git> and <https://github.com/20chix/dwm1001_ros.git> for tracking multiple UWB tags using DWM1001 Devlopment boards specifically MDEK1001. The code has been tested under Ubuntu 20.04/ROS noetic distribution. This project has been originated as a sub-project for [CITrack](https://cit-ec.de/en/ks/projects/citrack) in Cognitronics and Sensor System Research Group, CITEC, Bielefeld Unviversity.
+This repo extends the ROS interfaces provided by <https://github.com/TIERS/ros-dwm1001-uwb-localization.git> and <https://github.com/20chix/dwm1001_ros.git> for the UWB-based tracking purposes of multiple tags using DWM1001 Devlopment boards, specifically MDEK1001 Dev-boards. For TREK1000/EVK1000 configuation, we wrote the interface from scratch. The code has been tested under Ubuntu 20.04/ROS noetic distribution. 
+
+This project has been originated as a supplementary sub-project for [CITrack](https://cit-ec.de/en/ks/projects/citrack) in Cognitronics and Sensor System Research Group, CITEC, Bielefeld Unviversity.
 
 
 ## Requirements
