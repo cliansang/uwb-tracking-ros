@@ -128,8 +128,8 @@ class dwm1001_localizer:
             ps.header.frame_id = tag_macID # TODO: Currently, MAC ID of the Tag is set as a frame ID 
 
             if tag_id not in self.topics :
-                self.topics[tag_id] = rospy.Publisher("/dwm1001/tagId_" + tag_macID + "/pose", PoseStamped, queue_size=100)
-                # self.topics[tag_id] = rospy.Publisher("/dwm1001/tagId_"+ str(int(tag_id)) + "/position", PoseStamped, queue_size=100)
+                # self.topics[tag_id] = rospy.Publisher("/dwm1001/tagId_" + tag_macID + "/pose", PoseStamped, queue_size=100)
+                self.topics[tag_id] = rospy.Publisher("/dwm1001/tagId_"+ str(int(tag_id)) + "/position", PoseStamped, queue_size=100)
                 #rospy.loginfo("New tag {}. x: {}m, y: {}m, z: {}m".format(
                 #    str(tag_id),
                 #    ps.pose.position.x,
@@ -151,15 +151,15 @@ class dwm1001_localizer:
             
             # publish tag as Visual Odometry
             # The following code snippet is copied from Michael implementation 
-            odo = Odometry()
-            odo.child_frvoame_id ="uwb_map" # "base_link"
-            odo.header.frame_id = "odom"
-            odo.pose.pose.position.x = p.pose.position.x # tag.x
-            odo.pose.pose.position.y = p.pose.position.y # tag.y
-            odo.pose.covariance = [99, 0, 0, 0, 0, 0,   0, 99, 0, 0, 0, 0,  0, 0, 99, 0, 0, 0,  0, 0,
-                                   0, 99999, 0, 0, 0, 0, 0, 0, 99999, 0, 0, 0, 0, 0, 0, 99999]  # large covariance on rot z
-            pub_odom = rospy.Publisher('/', Odometry, queue_size=1)
-            pub_odom.publish(odo)
+            # odo = Odometry()
+            # odo.child_frvoame_id ="uwb_map" # "base_link"
+            # odo.header.frame_id = "odom"
+            # odo.pose.pose.position.x = p.pose.position.x # tag.x
+            # odo.pose.pose.position.y = p.pose.position.y # tag.y
+            # odo.pose.covariance = [99, 0, 0, 0, 0, 0,   0, 99, 0, 0, 0, 0,  0, 0, 99, 0, 0, 0,  0, 0,
+            #                        0, 99999, 0, 0, 0, 0, 0, 0, 99999, 0, 0, 0, 0, 0, 0, 99999]  # large covariance on rot z
+            # pub_odom = rospy.Publisher('/', Odometry, queue_size=1)
+            # pub_odom.publish(odo)
 
 
 
