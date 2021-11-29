@@ -5,9 +5,7 @@
 """
 
 import rospy, time, serial, os
-
 from dwm1001_apiCommands import DWM1001_API_COMMANDS
-
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Odometry
 
@@ -17,8 +15,7 @@ class dwm1001_localizer:
     def __init__(self) :
         """
         Initialize the node, open serial port
-        """
-        
+        """        
         # Init node
         rospy.init_node('DWM1001_Passive', anonymous=False)
         
@@ -99,7 +96,6 @@ class dwm1001_localizer:
                 self.serialPortDWM1001.close()
 
 
-
     def publishTagPositions(self, serialData):
         """
         Publish anchors and tag in topics using Tag and Anchor Object
@@ -149,20 +145,6 @@ class dwm1001_localizer:
                     + str(ps.pose.position.z)
                 )
             
-            # publish tag as Visual Odometry
-            # The following code snippet is copied from Michael implementation 
-            # odo = Odometry()
-            # odo.child_frvoame_id ="uwb_map" # "base_link"
-            # odo.header.frame_id = "odom"
-            # odo.pose.pose.position.x = p.pose.position.x # tag.x
-            # odo.pose.pose.position.y = p.pose.position.y # tag.y
-            # odo.pose.covariance = [99, 0, 0, 0, 0, 0,   0, 99, 0, 0, 0, 0,  0, 0, 99, 0, 0, 0,  0, 0,
-            #                        0, 99999, 0, 0, 0, 0, 0, 0, 99999, 0, 0, 0, 0, 0, 0, 99999]  # large covariance on rot z
-            # pub_odom = rospy.Publisher('/', Odometry, queue_size=1)
-            # pub_odom.publish(odo)
-
-
-
 
     def initializeDWM1001API(self):
         """
@@ -183,10 +165,10 @@ class dwm1001_localizer:
         self.serialPortDWM1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
 
 
-
 def start():
     dwm1001 = dwm1001_localizer()
     dwm1001.main()
+
 
 if __name__ == '__main__':
     try:
