@@ -1,8 +1,8 @@
 # ROS Interface for the Demos of Decawave's DWM1001 and EVK1000 Dev-Boards
 
-This repo extends the ROS interfaces for the [demo](<https://www.decawave.com/wp-content/uploads/2018/08/mdek1001_quick_start_guide.pdf>) of Decawave's MDEK1001 Dev-boards provided by [TIERs](<https://github.com/TIERS/ros-dwm1001-uwb-localization.git>) and [20chix (Mub)](<https://github.com/20chix/dwm1001_ros.git>) for the purpose of tracking and visualizing multiple tags in ROS environment. Regarding the [demo](<https://www.decawave.com/wp-content/uploads/2018/09/trek1000_user_manual.pdf>) based on TREK1000/EVK1000 Dev-boards, we wrote the ROS interface from scratch. The code has been tested under Ubuntu 20.04 with ROS noetic distribution. 
+This repo extends the ROS interfaces for the [demo](https://www.decawave.com/wp-content/uploads/2018/08/mdek1001_quick_start_guide.pdf) of Decawave's MDEK1001 Dev-boards provided by [TIERs](https://github.com/TIERS/ros-dwm1001-uwb-localization.git) and [20chix (Mub)](https://github.com/20chix/dwm1001_ros.git) for the purpose of tracking and visualizing multiple tags in ROS environment. Regarding the [demo](https://www.decawave.com/wp-content/uploads/2018/09/trek1000_user_manual.pdf) based on TREK1000/EVK1000 Dev-boards, we wrote the ROS interface from scratch. The code has been tested under Ubuntu 20.04 with ROS noetic distribution. 
 
-This project has been originated as a supplementary sub-project for [CITrack](<https://cit-ec.de/en/ks/projects/citrack>) in Cognitronics and Sensor Systems Research Group, CITEC, Bielefeld Unviversity.
+This project has been originated as a supplementary sub-project for [CITrack](https://cit-ec.de/en/ks/projects/citrack) in Cognitronics and Sensor Systems Research Group, CITEC, Bielefeld University.
 
 
 ## Requirements
@@ -39,7 +39,7 @@ roslaunch uwb_tracking_ros uwb_tracking_dwm1001.launch
 
 ## Get Started
 ### For DWM1001/MDEK1001 
-Follow the steps in [Decawave's DRTLS Guide](<https://www.decawave.com/wp-content/uploads/2018/08/mdek1001_quick_start_guide.pdf>) to setup a Real Time Location System (RTLS) system with at least 3 anchors and 1 active node using DWM1001-dev board ( in our case, we use MDEK1001 hardware setup). An android phone or a tablet is required to set-up the RTLS using DRTLS andriod app. 
+Follow the steps in [Decawave's DRTLS Guide](https://www.decawave.com/wp-content/uploads/2018/08/mdek1001_quick_start_guide.pdf) to setup a Real Time Location System (RTLS) system with at least 3 anchors and 1 active node using DWM1001-dev board ( in our case, we use MDEK1001 hardware setup). An android phone or a tablet is required to set-up the RTLS using DRTLS andriod app. 
 
 The UWB node can be set-up as an anchor, tag, and listener modes. This repo requires the listener node to be attached into the PC or remote machine where ROS is running. The task of the listener node is echoing the positioning data of tags that it has heard. Only position data (x, y, z) of the tags in 3D are able to process via listener node (i.e., the ranging data are not available). To set-up the node as a listener, simply switch the dedicated UWB node to a 'passive' mode in the Decawave's RTLS app. 
 
