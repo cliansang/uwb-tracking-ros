@@ -1,8 +1,8 @@
 # ROS Interface for the Demos of Decawave's DWM1001 and EVK1000 Dev-Boards
 
-This repo extends the ROS interfaces for the [demo](<https://www.decawave.com/wp-content/uploads/2018/08/mdek1001_quick_start_guide.pdf>) of Decawave's MDEK1001 Dev-boards provided by [TIERs]<https://github.com/TIERS/ros-dwm1001-uwb-localization.git> and [20chix(Mub)]<https://github.com/20chix/dwm1001_ros.git> for the purpose of tracking and visualizing multiple tags in ROS environment. For TREK1000/EVK1000 configuation, we wrote the interface from scratch. The code has been tested under Ubuntu 20.04 with ROS noetic distribution. 
+This repo extends the ROS interfaces for the [demo](<https://www.decawave.com/wp-content/uploads/2018/08/mdek1001_quick_start_guide.pdf>) of Decawave's MDEK1001 Dev-boards provided by [TIERs](<https://github.com/TIERS/ros-dwm1001-uwb-localization.git>) and [20chix (Mub)](<https://github.com/20chix/dwm1001_ros.git>) for the purpose of tracking and visualizing multiple tags in ROS environment. Regarding the [demo](<https://www.decawave.com/wp-content/uploads/2018/09/trek1000_user_manual.pdf>) based on TREK1000/EVK1000 Dev-boards, we wrote the ROS interface from scratch. The code has been tested under Ubuntu 20.04 with ROS noetic distribution. 
 
-This project has been originated as a supplementary sub-project for [CITrack](https://cit-ec.de/en/ks/projects/citrack) in Cognitronics and Sensor Systems Research Group, CITEC, Bielefeld Unviversity.
+This project has been originated as a supplementary sub-project for [CITrack](<https://cit-ec.de/en/ks/projects/citrack>) in Cognitronics and Sensor Systems Research Group, CITEC, Bielefeld Unviversity.
 
 
 ## Requirements
