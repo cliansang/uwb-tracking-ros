@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ 
     For more info on the documentation go to https://www.decawave.com/sites/default/files/dwm1001-api-guide.pdf
-    This src is adapted partly from this repo: https://github.com/TIERS/ros-dwm1001-uwb-localization
+    This src is adapted from this repo: https://github.com/TIERS/ros-dwm1001-uwb-localization
 """
 
 import rospy, time, serial, os
@@ -17,7 +17,11 @@ class dwm1001_localizer:
         Initialize the node, open serial port
         """        
         # Init node
-        rospy.init_node('DWM1001_Passive', anonymous=False)
+        rospy.init_node('DWM1001_Listener_Mode', anonymous=False)
+
+        # allow serial port to be detected by user
+        # NOTE: USB is assumed to be connected to ttyACM0. If not, need to modified it.
+        # os.popen("sudo chmod 777 /dev/ttyACM0", "w")  
         
         # Set a ROS rate
         self.rate = rospy.Rate(1)
@@ -76,8 +80,6 @@ class dwm1001_localizer:
 
                 except IndexError:
                     rospy.loginfo("Found index error in the network array!DO SOMETHING!")
-
-
 
         except KeyboardInterrupt:
             rospy.loginfo("Quitting DWM1001 Shell Mode and closing port, allow 1 second for UWB recovery")

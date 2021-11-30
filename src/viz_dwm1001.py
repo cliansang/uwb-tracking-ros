@@ -4,9 +4,9 @@ import rospy
 import copy
 from interactive_markers.interactive_marker_server  import InteractiveMarkerServer
 from interactive_markers.menu_handler               import *
-from visualization_msgs.msg                         import (InteractiveMarkerControl, Marker, InteractiveMarker )
+from visualization_msgs.msg                         import (InteractiveMarkerControl, Marker, InteractiveMarker)
 from geometry_msgs.msg                              import Point
-from geometry_msgs.msg                              import Pose
+# from geometry_msgs.msg                              import Pose
 from geometry_msgs.msg                              import PoseStamped
 
 
