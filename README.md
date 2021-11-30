@@ -5,7 +5,7 @@ This repo extends the ROS interfaces for the Ultra-Wideband (UWB) Real Time Loca
 This project has been originated as a supplementary sub-project for [CITrack](https://cit-ec.de/en/ks/projects/citrack) in Cognitronics and Sensor Systems Research Group, [CITEC](https://www.cit-ec.de/en), Bielefeld University.
 
 
-## Requirements
+## Requirements and Setups
 ### DWM1001/MDEK1001 Setup
 - clone this repo
 - Plug the USB cable of the tag acting as a listener mode into your machine
@@ -37,7 +37,7 @@ roslaunch uwb_tracking_ros uwb_tracking_dwm1001.launch
 ```
 
 
-## Get Started
+## Getting Started
 ### For DWM1001/MDEK1001 
 Follow the steps in [Decawave's DRTLS Guide](https://www.decawave.com/wp-content/uploads/2018/08/mdek1001_quick_start_guide.pdf) to setup a Real Time Location System (RTLS) system with at least 3 anchors and 1 active node using DWM1001-dev board ( in our case, we use MDEK1001 hardware setup). An android phone or a tablet is required to set-up the RTLS using DRTLS andriod app. 
 
