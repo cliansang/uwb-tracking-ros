@@ -10,7 +10,7 @@ This project has been originated as a supplementary sub-project for [CITrack](ht
 - clone this repo into your catkin workspace (see installation section)
 - Plug the USB cable of the tag acting as a listener mode into your machine
 - Check the name of the USB in your machine (typically it is /dev/ttyACM0 in Ubuntu if no other USB is connected into it)
-- Give read-write permission to your USB (i.e., sudo chmod 0777 /dev/ttyACM0 or add it into the user group dialout)
+- Give read-write permission to your USB (i.e., sudo chmod 0777 /dev/<your_USB_port> or add it into the user group dialout)
 - Make sure that RTLS is working on the app from the grid view according to the instruction in 'Get Started' section 
 
 
@@ -45,7 +45,7 @@ The UWB node can be set-up as an anchor, tag, and listener modes. This repo requ
 
 The update rate of the tag's position can be adjusted within the Decawave's app. However, we recommend setting the update rate to 10 Hz in stationary mode.
 
-The following is a sample screenshot of two tags on rviz 
+The following is a sample visualization screenshot of two tags on rviz in 3D
 ![rviz_uwb_sample](https://user-images.githubusercontent.com/18302290/143898129-9c9362f8-d556-44d4-9028-5bea2d261224.JPG)
 
 
