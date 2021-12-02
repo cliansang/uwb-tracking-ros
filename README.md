@@ -13,6 +13,10 @@ This project has been originated as a supplementary sub-project for [CITrack](ht
 - Give read-write permission to your USB (i.e., sudo chmod 0777 /dev/<your_USB_port> or add it into the user group dialout)
 - Make sure that RTLS is working on the app from the grid view according to the instruction in 'Getting Started' section 
 
+### TREK1000/EVK1000 Setup
+- install the stlink-tools to connect the Dev-board via USB ``` sudo apt install stlink-tools ```
+- 
+
 
 ## Installation
 
