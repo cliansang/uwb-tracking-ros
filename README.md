@@ -47,7 +47,5 @@ The UWB node can be set-up as an anchor, tag, and listener modes. This repo requ
 The update rate of the tag's position can be adjusted within the Decawave's app. However, we recommend setting the update rate to 10 Hz in stationary mode.
 
 The following is a sample visualization screenshot of two tags on rviz in 3D
-![rviz_uwb_sample](https://user-images.githubusercontent.com/18302290/143898129-9c9362f8-d556-44d4-9028-5bea2d261224.JPG)
-
-
+![rviz_uwb_sample](https://user-images.githubusercontent.com/18302290/144410317-1d5b5a1f-3058-487b-b583-408133118df7.JPG)
 
