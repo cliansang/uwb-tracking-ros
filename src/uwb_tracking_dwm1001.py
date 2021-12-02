@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """ 
-    For more info on the documentation go to https://www.decawave.com/sites/default/files/dwm1001-api-guide.pdf
     This src is adapted from this repo: https://github.com/TIERS/ros-dwm1001-uwb-localization
+
+    For more info on the documentation of DWM1001, go to the following links: 
+    1. https://www.decawave.com/sites/default/files/dwm1001-api-guide.pdf
+    2. https://www.decawave.com/product-documentation/    
 """
 
 import rospy, time, serial, os
 from dwm1001_apiCommands import DWM1001_API_COMMANDS
 from geometry_msgs.msg import PoseStamped
-from nav_msgs.msg import Odometry
+# from nav_msgs.msg import Odometry
 
 
 class dwm1001_localizer:
@@ -126,8 +129,8 @@ class dwm1001_localizer:
             ps.header.frame_id = tag_macID # TODO: Currently, MAC ID of the Tag is set as a frame ID 
 
             if tag_id not in self.topics :
-                # self.topics[tag_id] = rospy.Publisher("/dwm1001/tagId_" + tag_macID + "/pose", PoseStamped, queue_size=100)
-                self.topics[tag_id] = rospy.Publisher("/dwm1001/tagId_"+ str(int(tag_id)) + "/position", PoseStamped, queue_size=100)
+                self.topics[tag_id] = rospy.Publisher("/dwm1001/tagId_" + tag_macID + "/pose", PoseStamped, queue_size=100)
+                # self.topics[tag_id] = rospy.Publisher("/dwm1001/tagId_"+ str(int(tag_id)) + "/pose", PoseStamped, queue_size=100)
                 #rospy.loginfo("New tag {}. x: {}m, y: {}m, z: {}m".format(
                 #    str(tag_id),
                 #    ps.pose.position.x,

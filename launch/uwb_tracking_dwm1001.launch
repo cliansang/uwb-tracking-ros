@@ -5,7 +5,7 @@
       if="$(arg use_static_tf)" />
 
     <!--Exctract info from dwm1001 dev boards, filter them and publish them into topics-->
-    <node pkg="uwb_tracking_ros" type="uwb_citrack_dwm1001.py" name="uwb_tracking_dwm1001" output="screen">
+    <node pkg="uwb_tracking_ros" type="uwb_tracking_dwm1001.py" name="uwb_tracking_dwm1001" output="screen">
         <rosparam file="$(find uwb_tracking_ros)/config/params_dwm1001.yaml" command="load"/>
     </node> 
 

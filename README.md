@@ -16,9 +16,10 @@ This project has been originated as a supplementary sub-project for [CITrack](ht
 
 ## Installation
 
-Clone this repo into your catkin workspace and install the dependencies if required by running the following in the top directory of your catkin workspace
+Clone this repo into your catkin workspace and install the dependencies if required 
 ```
 rosdep install --from-paths src --ignore-src -r -y
+pip install pyserial
 ```
 
 Build the workspace:

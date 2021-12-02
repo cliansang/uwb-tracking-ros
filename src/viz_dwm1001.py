@@ -116,8 +116,8 @@ class VisualizeInRviz:
 
     def start(self):
         # TODO: auto subscription of multiple tag IDs in a single line (i.e., similar to wildcard)
-        rospy.Subscriber("/dwm1001/tagId_C1A1/position", PoseStamped, self.TagCallback)
-        rospy.Subscriber("/dwm1001/tagId_CE2C/position", PoseStamped, self.TagCallback)
+        rospy.Subscriber("/dwm1001/tagId_C1A1/pose", PoseStamped, self.TagCallback)
+        rospy.Subscriber("/dwm1001/tagId_CE2C/pose", PoseStamped, self.TagCallback)
         # rospy.Subscriber("/dwm1001/tags", PoseStamped, self.TagCallback)
         rospy.spin()
 
