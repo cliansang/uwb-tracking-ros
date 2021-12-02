@@ -1,4 +1,4 @@
-# ROS Interface for the Demos of Decawave's DWM1001 and EVK1000 Dev-Boards
+# ROS Interface for the UWB Tracking Demos of Decawave's DWM1001 and EVK1000 Kits
 
 This repo extends the ROS interfaces for the Ultra-Wideband (UWB) Real Time Locatin System (RTLS) [demo](https://www.decawave.com/wp-content/uploads/2018/08/mdek1001_quick_start_guide.pdf) of Decawave's MDEK1001 Dev-boards provided by [TIERs](https://github.com/TIERS/ros-dwm1001-uwb-localization.git) and [20chix (Mub)](https://github.com/20chix/dwm1001_ros.git) for the purpose of tracking and visualizing multiple tags in ROS environment. Additionally, we also provide the ROS interface for the UWB tracking [demo](https://www.decawave.com/wp-content/uploads/2018/09/trek1000_user_manual.pdf) based on TREK1000/EVK1000 Dev-boards. The code has been tested under Ubuntu 20.04 with ROS Noetic Ninjemys distribution. 
 
