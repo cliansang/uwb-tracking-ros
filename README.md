@@ -8,7 +8,7 @@ This project has been originated as a supplementary sub-project for [CITrack](ht
 ## Requirements and Setups
 ### DWM1001/MDEK1001 Setup
 - clone this repo into your catkin workspace (see installation section)
-- Plug the USB cable of the tag acting as a listener mode into your machine
+- Plug the USB cable of the tag acting as either a listener node or gateway node into your machine
 - Check the name of the USB in your machine (typically it is /dev/ttyACM0 in Ubuntu if no other USB is connected into it)
 - Give read-write permission to your USB (i.e., sudo chmod 0777 /dev/<your_USB_port> or add it into the user group dialout)
 - Make sure that RTLS is working on the app from the grid view according to the instruction in 'Get Started' section 
