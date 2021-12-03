@@ -14,8 +14,8 @@ This project has been originated as a supplementary sub-project for [CITrack](ht
 - Make sure that RTLS is working on the app from the grid view according to the instruction in 'Getting Started' section 
 
 ### TREK1000/EVK1000 Setup
-- install the stlink-tools to connect the Dev-board via USB ``` sudo apt install stlink-tools ```
-- 
+- Install the stlink-tools to connect the Dev-board via USB ``` sudo apt install stlink-tools ```
+- If you are using virtual machine via Windows as a host, [STM32 Virtual COM Port Driver](https://www.st.com/en/development-tools/stsw-stm32102.html) is necessary to install on the host in some cases.
 
 
 ## Installation
