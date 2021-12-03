@@ -5,7 +5,7 @@ This repo extends the ROS interfaces for the Ultra-Wideband (UWB) Real Time Loca
 This project has been originated as a supplementary sub-project for [CITrack](https://cit-ec.de/en/ks/projects/citrack) in [Cognitronics and Sensor Systems](https://www.cit-ec.de/en/ks) Research Group, CITEC, Bielefeld University.
 
 
-## Requirements and Setups
+## Setups and Installation
 ### DWM1001/MDEK1001 Setup
 - clone this repo into your catkin workspace (see installation section)
 - Plug the USB cable of the tag acting as either a listener node or gateway node into your machine
@@ -17,8 +17,7 @@ This project has been originated as a supplementary sub-project for [CITrack](ht
 - Install the stlink-tools to connect the Dev-board via USB ``` sudo apt install stlink-tools ```
 - If you are using virtual machine via Windows as a host, [STM32 Virtual COM Port Driver](https://www.st.com/en/development-tools/stsw-stm32102.html) is necessary to install on the host in some cases.
 
-
-## Installation
+### Installation
 
 Clone this repo into your catkin workspace and install the dependencies if required 
 ```
