@@ -128,8 +128,8 @@ class dwm1001_localizer:
             ps.header.frame_id = tag_macID # TODO: Currently, MAC ID of the Tag is set as a frame ID 
 
             if tag_id not in self.topics :
-                self.topics[tag_id] = rospy.Publisher("/dwm1001/tagId_" + tag_macID + "/pose", PoseStamped, queue_size=100)
-                # self.topics[tag_id] = rospy.Publisher("/dwm1001/tagId_"+ str(int(tag_id)) + "/pose", PoseStamped, queue_size=100)
+                self.topics[tag_id] = rospy.Publisher("/dwm1001/id_" + tag_macID + "/pose", PoseStamped, queue_size=100)
+               
                 #rospy.loginfo("New tag {}. x: {}m, y: {}m, z: {}m".format(
                 #    str(tag_id),
                 #    ps.pose.position.x,

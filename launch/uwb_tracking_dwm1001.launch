@@ -1,6 +1,6 @@
 <launch>
     <arg name="use_static_tf" default="true" />
-    <node pkg="tf" type="static_transform_publisher" name="dwm_static_tf"
+    <node pkg="tf" type="static_transform_publisher" name="uwb_static_tf"
       args="2.5 2.5 0 3.14159 0 0 map uwb_map 30"
       if="$(arg use_static_tf)" />
 
