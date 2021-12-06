@@ -10,7 +10,6 @@
 import rospy, time, serial, os
 from dwm1001_apiCommands import DWM1001_API_COMMANDS
 from geometry_msgs.msg import PoseStamped
-# from nav_msgs.msg import Odometry
 
 
 class dwm1001_localizer:
