@@ -25,6 +25,7 @@ Clone this repo into your catkin workspace and install the dependencies if requi
 ```
 rosdep install --from-paths src --ignore-src -r -y
 pip install pyserial
+pip install numpy
 ```
 
 Build the workspace:
