@@ -97,16 +97,17 @@ class trek1000_localizer:
            
                         id_mask = serDataList[9]
                         tag_id_mask = [id.strip() for id in id_mask.strip().split(b':')]
-                        tag_id = tag_id_mask[0]
+                        # tag_id = tag_id_mask[0]
+                        tag_id = str(tag_id_mask[0])
+                        # print(tag_id[3])  # the id number
                         
                         # tag 2 anc measrued distances including the tag id 
-                        meas_tag_dist = [tag_id, dist_t2a0, dist_t2a1, dist_t2a2, dist_t2a3]
+                        meas_tag_dist = [tag_id[3], dist_t2a0, dist_t2a1, dist_t2a2, dist_t2a3]
                         self.publishTagDistances(meas_tag_dist)
 
                         # Estimate the position of the unknown tag based on the measured ranges 
                         est_tag_pose = self.estimateTagPosition(meas_tag_dist)
-                        tag_position = [tag_id, est_tag_pose[0], est_tag_pose[1], est_tag_pose[2]]
-                        # print(tag_position)  # just for debug                         
+                        tag_position = [tag_id[3], est_tag_pose[0], est_tag_pose[1], est_tag_pose[2]]                                              
                         self.publishTagPositions(tag_position)
                     
                     # The anchor to anchor measurement data for auto-positioning of the Anchor nodes
@@ -126,13 +127,13 @@ class trek1000_localizer:
            
                         id_mask_raw = serDataList[9]
                         tag_id_mask_raw = [id.strip() for id in id_mask_raw.strip().split(b':')]
-                        tag_id_raw = tag_id_mask_raw[0]                        
+                        tag_id_raw = str(tag_id_mask_raw[0])                        
                         
-                        # meas_tag_dist_raw = [tag_id_raw, dist_t2a0_raw, dist_t2a1_raw, dist_t2a2_raw, dist_t2a3_raw]
+                        # meas_tag_dist_raw = [tag_id_raw[3], dist_t2a0_raw, dist_t2a1_raw, dist_t2a2_raw, dist_t2a3_raw]
                         # self.publishTagDistances(meas_tag_dist_raw)
                          
                         # est_tag_pose_raw = self.estimateTagPosition(meas_tag_dist)
-                        # tag_position_raw = [tag_id, est_tag_pose_raw[0], est_tag_pose_raw[1], est_tag_pose_raw[3]]
+                        # tag_position_raw = [tag_id_raw[3], est_tag_pose_raw[0], est_tag_pose_raw[1], est_tag_pose_raw[3]]
                         # self.publishTagPositions(tag_position_raw)
 
                 except IndexError:
@@ -149,7 +150,8 @@ class trek1000_localizer:
     
     def publishTagDistances(self, estimatedTagDistances):
 
-        tag_id = str(estimatedTagDistances[0], 'UTF8')       
+        tag_id = estimatedTagDistances[0]
+        # tag_id = str(estimatedTagDistances[0], 'UTF8')       
         t_dist = Tag2AnchorRanges(tag_id,
                     float(estimatedTagDistances[1]),
                     float(estimatedTagDistances[2]),
@@ -158,7 +160,7 @@ class trek1000_localizer:
         # rospy.loginfo(t_dist) # just for debug 
         
         if tag_id not in self.distTopics :
-            self.distTopics[tag_id] = rospy.Publisher("/trek1000/id_" + tag_id + "/ranges", Tag2AnchorRanges, queue_size=10)
+            self.distTopics[tag_id] = rospy.Publisher("/trek1000/id_t" + tag_id + "/ranges", Tag2AnchorRanges, queue_size=10)
            
         self.distTopics[tag_id].publish(t_dist)
         # print(t_dist)
@@ -178,7 +180,8 @@ class trek1000_localizer:
 
     def publishTagPositions(self, estPoseData):
 
-        tag_id = str(estPoseData[0], 'UTF8') 
+        tag_id = estPoseData[0]
+        # tag_id = str(estPoseData[0], 'UTF8') 
         ps = PoseStamped()
         ps.pose.position.x = float(estPoseData[1])
         ps.pose.position.y = float(estPoseData[2])
@@ -188,11 +191,11 @@ class trek1000_localizer:
         ps.pose.orientation.z = 0.0
         ps.pose.orientation.w = 1.0
         ps.header.stamp = rospy.Time.now()   
-        ps.header.frame_id = tag_id
+        ps.header.frame_id = "id_t"+ tag_id  # id number
         # print(ps)
 
         if tag_id not in self.poseTopics :
-            self.poseTopics[tag_id] = rospy.Publisher("/trek1000/id_" + str(tag_id) + "/pose", PoseStamped, queue_size=10)
+            self.poseTopics[tag_id] = rospy.Publisher("/trek1000/id_t" + str(tag_id) + "/pose", PoseStamped, queue_size=10)
             
             #rospy.loginfo("Pose Tag {}. x: {}m, y: {}m, z: {}m".format(
             #    str(tag_id),
