@@ -54,3 +54,5 @@ The update rate of the tag's position can be adjusted within the Decawave's app.
 The following is a sample visualization screenshot of two tags on rviz in 3D
 ![rviz_uwb_sample](https://user-images.githubusercontent.com/18302290/144410317-1d5b5a1f-3058-487b-b583-408133118df7.JPG)
 
+### For TREK1000/EVK1000
+Follow the set-up instructions given for [TREK1000](https://www.decawave.com/wp-content/uploads/2018/09/trek1000_user_manual.pdf) by Decawave. Then, connect the coordinator node (i.e., Anchor 0 in TREK1000) into your machine where ROS is availalbe via USB port. Run the launch file related to TREK1000 from this repo and process further as your requirments. It should be noted that the tag node can also be connected into the your machine. In this case, the scenario will be for navigation or self-navigation purpose where the positiong data is available to the moving tag. 
