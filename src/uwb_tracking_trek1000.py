@@ -6,7 +6,6 @@
 """
 
 import rospy, time, serial, os
-from dwm1001_apiCommands import DWM1001_API_COMMANDS
 from geometry_msgs.msg import PoseStamped
 from rospy.core import loginfo
 from uwb_tracking_ros.msg import Tag2AnchorRanges
@@ -30,7 +29,8 @@ class trek1000_localizer:
         self.rate = rospy.Rate(1)
         
         # Empty dictionary to store topics being published
-        self.topics = {}
+        self.distTopics = {}
+        self.poseTopics = {}
         self.mat_Anc =[]
         
         # Serial port settings
@@ -86,11 +86,10 @@ class trek1000_localizer:
                     # print(len(serDataList))
 
                     # The corrected ranges between tag and anchors (i.e., calibrated ranges upon EVK1000 settings)
-                    # For raw ranges measurement without calibration, modify "mc" to "mr"
                     if b"mc" in serDataList[0]:
 
                         # The ranges from USB are in millimeter with 32-bit HEX value 
-                        # Therefore, it is needed to tranform them into floating point no. in meter                        
+                        # Therefore, it is needed to tranform them into double or float in meter                        
                         dist_t2a0 = float((int(serDataList[2], base=16))/1000)  # Tag to A0 
                         dist_t2a1 = float((int(serDataList[3], base=16))/1000)  # Tag to A1 
                         dist_t2a2 = float((int(serDataList[4], base=16))/1000)  # Tag to A2 
@@ -100,11 +99,15 @@ class trek1000_localizer:
                         tag_id_mask = [id.strip() for id in id_mask.strip().split(b':')]
                         tag_id = tag_id_mask[0]
                         
-                        # tag 2 anc measrued distances with tag id 
+                        # tag 2 anc measrued distances including the tag id 
                         meas_tag_dist = [tag_id, dist_t2a0, dist_t2a1, dist_t2a2, dist_t2a3]
-                        # print(meas_tag_dist)  # just for debug 
-
                         self.publishTagDistances(meas_tag_dist)
+
+                        # Estimate the position of the unknown tag based on the measured ranges 
+                        est_tag_pose = self.estimateTagPosition(meas_tag_dist)
+                        tag_position = [tag_id, est_tag_pose[0], est_tag_pose[1], est_tag_pose[2]]
+                        # print(tag_position)  # just for debug                         
+                        self.publishTagPositions(tag_position)
                     
                     # The anchor to anchor measurement data for auto-positioning of the Anchor nodes
                     if b'ma' in serDataList[0]:
@@ -112,16 +115,28 @@ class trek1000_localizer:
                         dist_a02a2 = serDataList[4]  # A0 to A2 range 
                         dist_a12a2 = serDataList[5]  # A1 to A2 range
 
-                        meas_anc_dist = [dist_a02a1, dist_a02a2, dist_a12a2]
-                        # print(str(meas_anc_dist)) 
-                    
-                    # This returns list of [Tag ID, tag.x, tag.y, tag.z, A0.x, A0.y, A1.x, A1.y, A2.x, A2.y]
-                    # tagPose = self.calculateTagPosition(meas_anc_dist, meas_tag_dist)             
-
-                    # self.publishTagPositions(tagPose)
+                        meas_a2a_dist = [dist_a02a1, dist_a02a2, dist_a12a2] # list of anchor to anchor ranges
+                 
+                    # Uncorrected raw measured ranges in TREK1000 (The measurement may include errors due to uncalibrated signal attenuation)
+                    if b"mr" in serDataList[0]:                                             
+                        dist_t2a0_raw = float((int(serDataList[2], base=16))/1000)  # Tag to A0 
+                        dist_t2a1_raw = float((int(serDataList[3], base=16))/1000)  # Tag to A1 
+                        dist_t2a2_raw = float((int(serDataList[4], base=16))/1000)  # Tag to A2 
+                        dist_t2a3_raw = float((int(serDataList[5], base=16))/1000)  # Tag to A3                        
+           
+                        id_mask_raw = serDataList[9]
+                        tag_id_mask_raw = [id.strip() for id in id_mask_raw.strip().split(b':')]
+                        tag_id_raw = tag_id_mask_raw[0]                        
+                        
+                        # meas_tag_dist_raw = [tag_id_raw, dist_t2a0_raw, dist_t2a1_raw, dist_t2a2_raw, dist_t2a3_raw]
+                        # self.publishTagDistances(meas_tag_dist_raw)
+                         
+                        # est_tag_pose_raw = self.estimateTagPosition(meas_tag_dist)
+                        # tag_position_raw = [tag_id, est_tag_pose_raw[0], est_tag_pose_raw[1], est_tag_pose_raw[3]]
+                        # self.publishTagPositions(tag_position_raw)
 
                 except IndexError:
-                    rospy.loginfo("Found index error in the Serial Data List !DO SOMETHING!")
+                    rospy.loginfo("Found index error! Do something!")
 
         except KeyboardInterrupt:
             rospy.loginfo("Quitting and closing the serial port, allow 1 second for UWB recovery")
@@ -142,23 +157,23 @@ class trek1000_localizer:
                     float(estimatedTagDistances[4]))
         # rospy.loginfo(t_dist) # just for debug 
         
-        if tag_id not in self.topics :
-            self.topics[tag_id] = rospy.Publisher("/trek1000/id_" + tag_id + "/ranges", Tag2AnchorRanges, queue_size=10)
+        if tag_id not in self.distTopics :
+            self.distTopics[tag_id] = rospy.Publisher("/trek1000/id_" + tag_id + "/ranges", Tag2AnchorRanges, queue_size=10)
            
-        self.topics[tag_id].publish(t_dist)
+        self.distTopics[tag_id].publish(t_dist)
         # print(t_dist)
 
-        if self.verbose :
-            rospy.loginfo("Range " + str(tag_id) + ": "
-                + " A0: "
-                + str(t_dist.dist_t2a0)
-                + " A1: "
-                + str(t_dist.dist_t2a1)
-                + " A2: "
-                + str(t_dist.dist_t2a2)
-                + " A3 "
-                + str(t_dist.dist_t2a3)
-                )
+        # if self.verbose :
+        #     rospy.loginfo("Range " + str(tag_id) + ": "
+        #         + " A0: "
+        #         + str(t_dist.dist_t2a0)
+        #         + " A1: "
+        #         + str(t_dist.dist_t2a1)
+        #         + " A2: "
+        #         + str(t_dist.dist_t2a2)
+        #         + " A3 "
+        #         + str(t_dist.dist_t2a3)
+        #         )
  
 
     def publishTagPositions(self, estPoseData):
@@ -174,9 +189,11 @@ class trek1000_localizer:
         ps.pose.orientation.w = 1.0
         ps.header.stamp = rospy.Time.now()   
         ps.header.frame_id = tag_id
+        # print(ps)
 
-        if tag_id not in self.topics :
-            self.topics[tag_id] = rospy.Publisher("/trek1000/id_" + tag_id + "/pose", PoseStamped, queue_size=10)
+        if tag_id not in self.poseTopics :
+            self.poseTopics[tag_id] = rospy.Publisher("/trek1000/id_" + str(tag_id) + "/pose", PoseStamped, queue_size=10)
+            
             #rospy.loginfo("Pose Tag {}. x: {}m, y: {}m, z: {}m".format(
             #    str(tag_id),
             #    ps.pose.position.x,
@@ -184,18 +201,100 @@ class trek1000_localizer:
             #    ps.pose.position.z
             #))
             
-        self.topics[tag_id].publish(ps)
+        self.poseTopics[tag_id].publish(ps)
 
-        if self.verbose :
-            rospy.loginfo("Tag " + str(tag_macID) + ": "
-                + " x: "
-                + str(ps.pose.position.x)
-                + " y: "
-                + str(ps.pose.position.y)
-                + " z: "
-                + str(ps.pose.position.z)
-            )
-            
+        # if self.verbose :
+        #     rospy.loginfo("Tag " + str(tag_id) + ": "
+        #         + " x: "
+        #         + str(ps.pose.position.x)
+        #         + " y: "
+        #         + str(ps.pose.position.y)
+        #         + " z: "
+        #         + str(ps.pose.position.z)
+        #     )
+    
+
+    def estimateTagPosition(self, t2a_dist):
+        """
+        Estimate the unknown tag postion based on the known anchors set-up and measured ranges 
+        :returns: calculated tag's position (x, y, z)
+        : Note: we applied True-range mulitilateration method.  The details can be found in our paper 
+                https://ieeexplore.ieee.org/abstract/document/8911811
+        """
+
+        tag_pose = np.zeros((3,1))  # place holder 
+
+        # Suppose the known anchor positions are as follows (as a default)      
+        anc_0 = [0, 0, 2.6]
+        anc_1 = [5.5, 0, 2.6]
+        anc_2 = [5.5, 5.6, 2.6]
+        anc_3 = [0, 5.7, 2.6]
+
+        matA = np.array([[anc_1[0] - anc_0[0],  anc_1[1] - anc_0[1],  anc_1[2] - anc_0[2]],
+              [anc_2[0] - anc_0[0],  anc_2[1] - anc_0[1],  anc_2[2] - anc_0[2]],
+              [anc_3[0] - anc_0[0],  anc_3[1] - anc_0[1],  anc_3[2] - anc_0[2]] ])
+        # print(matA)
+
+        # Limitation of True-Range Multiliteration method/algorithm (see the details on our paper mentioned above):
+        # All the coordinates of the anchors cannot lie at a collinear line in 2D (i.e. all 3 anchors on a line) and/or 
+        # a coplanar plane in 3D (i.e. all 4 or more anchors are on the same plane, e.g. they all have the same high in Z-axis)
+        # The reason is that, this would cause the matrix "A.transpose(A)" to become a singular (or) non-invertible matrix
+        # print("\tThe matrix Rank must be 2 for 2D and 3 for 3D!.\n \
+        # Otherwise, rearrange your anchors' coordinates.\n \
+        # Rank of the current anchors' setup is: {}\n".format(np.linalg.matrix_rank(matA)))
+
+        anc_col_rank = np.linalg.matrix_rank(matA)
+        print("Anchors column rank: ", anc_col_rank)
+
+        if (anc_col_rank == 3 and t2a_dist[3] != 0):
+            dim = 3     # 3D 
+        else:
+            dim = 2     # 2D 
+
+        sqr_a0 = np.square(anc_0)
+        sqr_a1 = np.square(anc_1)
+        sqr_a2 = np.square(anc_2)
+        sqr_a3 = np.square(anc_3)
+
+        b_0 = np.array([np.square(t2a_dist[1]) - np.square(t2a_dist[2])  
+                + (sqr_a1[0] + sqr_a1[1] + sqr_a1[2]) 
+                - (sqr_a0[0] + sqr_a0[1] + sqr_a0[2])])
+
+        b_1 = np.array([np.square(t2a_dist[1]) - np.square(t2a_dist[3])  
+                + (sqr_a2[0] + sqr_a2[1] + sqr_a2[2]) 
+                - (sqr_a0[0] + sqr_a0[1] + sqr_a0[2])])
+
+        b_2 = np.array([np.square(t2a_dist[1]) - np.square(t2a_dist[4])  
+                + (sqr_a3[0] + sqr_a3[1] + sqr_a3[2]) 
+                - (sqr_a0[0] + sqr_a0[1] + sqr_a0[2])])
+
+        vec_b = (np.array([b_0, b_1, b_2]))/2.0 
+
+        # For 2D  and 3D position data of Tag in TREK1000 set-up
+        if dim == 2:
+            A = matA[0:2, :]
+            b = vec_b[0:2]
+        else:      
+            A = matA[:] 
+            b = vec_b[:]
+       
+        # The unknown position of the Tag can now be calculated with the least-square method
+        AtrA = A.transpose().dot(A)
+        AtrA_inv = np.linalg.pinv(AtrA)
+        Atrb = A.transpose().dot(b)
+
+        tag_loc_data = AtrA_inv.dot(Atrb)
+        # tag_pose = (np.linalg.pinv(np.transpose(A).dot(A))).dot(np.transpose(A).dot(b))
+
+        if dim == 2:
+            tag_pose[0:2] = tag_loc_data[0:2]
+            tag_pose[2] = 0    # undefined z-axis in 2D 
+        else:
+            tag_pose = tag_loc_data[:] # tag location in 3D 
+
+        print("Pose is calculated for {}D: {}\n".format(dim, tag_pose))
+        return tag_pose
+
 
     def initializeTREK1000(self):
         """
