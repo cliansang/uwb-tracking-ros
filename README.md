@@ -7,15 +7,17 @@ This project has been originated as a supplementary sub-project for [CITrack](ht
 
 ## Setups and Installation
 ### DWM1001/MDEK1001 Setup
-- clone this repo into your catkin workspace (see installation section)
+- Clone this repo into your catkin workspace (see installation section)
 - Plug the USB cable of the tag acting as either a listener node or gateway node into your machine
 - Check the name of the USB in your machine (typically it is /dev/ttyACM0 in Ubuntu if no other USB is connected into it)
-- Give read-write permission to your USB (i.e., sudo chmod 0777 /dev/<your_USB_port> or add it into the user group dialout)
+- Give read-write permission to your USB (i.e., sudo chmod 777 /dev/<your_USB_port> or add it into the user group dialout)
 - Make sure that RTLS is working on the app from the grid view according to the instruction in 'Getting Started' section 
 
 ### TREK1000/EVK1000 Setup
 - Install the stlink-tools to connect the Dev-board via USB ``` sudo apt install stlink-tools ```
 - If you are using virtual machine via Windows as a host, [STM32 Virtual COM Port Driver](https://www.st.com/en/development-tools/stsw-stm32102.html) is necessary to install on the host in some cases.
+- Plug the USB cable of the coordinator node (Achor 0) into your machine
+- Give read-write permission to your USB (typically it is /dev/ttyACM0 in Ubuntu if no other USBs are connected)
 
 ### Installation
 
