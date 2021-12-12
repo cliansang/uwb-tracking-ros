@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """ 
-    This src is adapted from this repo: https://github.com/TIERS/ros-dwm1001-uwb-localization
+    This src is adapted from the following repo, which is under the MIT license:
+    https://github.com/TIERS/ros-dwm1001-uwb-localization
 
-    For more info on the documentation of DWM1001, go to the following links: 
+    For more info on the documentation of DWM1001, go to the following links from Decawave: 
     1. https://www.decawave.com/sites/default/files/dwm1001-api-guide.pdf
     2. https://www.decawave.com/product-documentation/    
 """
@@ -10,6 +11,10 @@
 import rospy, time, serial, os
 from dwm1001_apiCommands import DWM1001_API_COMMANDS
 from geometry_msgs.msg import PoseStamped
+from KalmanFilter import KalmanFilter as kf
+import numpy as np
+from Helpers_KF import initConstVelocityKF 
+
 
 
 class dwm1001_localizer:
@@ -30,6 +35,9 @@ class dwm1001_localizer:
         
         # Empty dictionary to store topics being published
         self.topics = {}
+        self.topics_kf = {}
+        # Empty list for each tags of Kalman filter 
+        self.kalman_list = [] 
         
         # Serial port settings
         self.dwm_port = rospy.get_param('~port')
@@ -78,7 +86,55 @@ class dwm1001_localizer:
                 serialReadLine = self.serialPortDWM1001.read_until()
 
                 try:
-                    self.publishTagPositions(serialReadLine)
+                    # Publish the Raw Pose Data directly from the USB                     
+                    self.publishTagPositions(serialReadLine)    
+
+                    ##################### Kalman Filter ###############
+                    # Use Kalman filter to process the data and publish it 
+                    serDataList = [x.strip() for x in serialReadLine.strip().split(b',')]
+
+                    # If getting a tag position
+                    if b"POS" in serDataList[0] :
+                        #rospy.loginfo(arrayData)  # just for debug
+
+                        tag_id = int(serDataList[1])  
+                        # tag_id = str(serDataList[1], 'UTF8')  # IDs in 0 - 15
+                        tag_macID = str(serDataList[2], 'UTF8')
+                        t_pose_x = float(serDataList[3])
+                        t_pose_y = float(serDataList[4])
+                        t_pose_z = float(serDataList[5])
+                        
+                        # To use this raw pose of DWM1001 as a measurement data in KF
+                        t_pose_xyz = [t_pose_x, t_pose_y, t_pose_z]
+                        t_pose_xyz.shape = (len(t_pose_xyz), 1)    # force to be a column vector 
+
+                        ##### TODO: deal with pose data which are "nan"  #####               
+
+                        if tag_macID not in self.kalman_list:
+                            self.kalman_list.append(tag_macID)
+                            # Suppose constant velocity motion model is used (x,y,z and velocities in 3D)
+                            A = np.zeros((6,6))
+                            H = np.zeros((3, 6))  # measurement (x,y,z without velocities)                            
+                            self.kalman_list[tag_id] = kf(A, H, tag_macID) # create KF object for tag id
+                            # print(self.kalman_list[tag_id].isKalmanInitialized)
+                        
+                        # idx = self.kalman_list.index(tag_macID)  # index of the Tag ID
+                        if self.kalman_list[tag_id].isKalmanInitialized == False:
+                            # Initialize the Kalman by generation and asigning required parameters
+                            # This should be done only once 
+                            A, B, H, Q, R, P_0, x_0  = initConstVelocityKF()
+                            self.kalman_list[tag_id].assignSystemParameters(A, B, H, Q, R, P_0, x_0)
+                            self.kalman_list[tag_id].isKalmanInitialized = True
+                            # print("This should print only one for a tag")
+                            # print(self.kalman_list[tag_id].isKalmanInitialized)
+                            
+                        # print(self.kalman_list[tag_id].x_m)   
+                        # print(len(self.kalman_list))
+                        # print(self.kalman_list)
+                        self.kalman_list[tag_id].performKalmanFilter(t_pose_xyz, 0)  
+                        t_pose_kf = self.kalman_list[tag_id].x_m
+                        # print(t_pose_kf)                      
+                        # self.publishTagPoseKF(tag_id, tag_macID, t_pose_kf)
 
                 except IndexError:
                     rospy.loginfo("Found index error in the network array!DO SOMETHING!")
@@ -127,7 +183,7 @@ class dwm1001_localizer:
             ps.header.stamp = rospy.Time.now()   
             ps.header.frame_id = tag_macID # TODO: Currently, MAC ID of the Tag is set as a frame ID 
 
-            if tag_id not in self.topics :
+            if tag_id not in self.topics:
                 self.topics[tag_id] = rospy.Publisher("/dwm1001/id_" + tag_macID + "/pose", PoseStamped, queue_size=100)
                
                 #rospy.loginfo("New tag {}. x: {}m, y: {}m, z: {}m".format(
@@ -139,15 +195,35 @@ class dwm1001_localizer:
             
             self.topics[tag_id].publish(ps)
 
-            if self.verbose :
-                rospy.loginfo("Tag " + str(tag_macID) + ": "
-                    + " x: "
-                    + str(ps.pose.position.x)
-                    + " y: "
-                    + str(ps.pose.position.y)
-                    + " z: "
-                    + str(ps.pose.position.z)
-                )
+            # if self.verbose :
+            #     rospy.loginfo("Tag " + str(tag_macID) + ": "
+            #         + " x: "
+            #         + str(ps.pose.position.x)
+            #         + " y: "
+            #         + str(ps.pose.position.y)
+            #         + " z: "
+            #         + str(ps.pose.position.z)
+            #     )
+    
+    # Publish Tag positions using KF 
+    def publishTagPoseKF(self, id_int, id_str, kfPoseData):
+
+        ps = PoseStamped()
+        ps.pose.position.x = float(kfPoseData[0])
+        ps.pose.position.y = float(kfPoseData[1])
+        ps.pose.position.z = float(kfPoseData[2])
+        ps.pose.orientation.x = 0.0
+        ps.pose.orientation.y = 0.0
+        ps.pose.orientation.z = 0.0
+        ps.pose.orientation.w = 1.0
+        ps.header.stamp = rospy.Time.now()   
+        ps.header.frame_id = id_str # TODO: use MAC ID of the Tag as a frame ID
+
+        if id_int not in self.topics_kf:
+            self.topics_kf[id_int] = rospy.Publisher("/dwm1001/id_" + str(id_str) + "/pose_kf", PoseStamped, queue_size=100)
+
+        self.topics_kf[id_int].publish(ps)
+
             
 
     def initializeDWM1001API(self):
