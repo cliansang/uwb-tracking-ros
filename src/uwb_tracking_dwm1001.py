@@ -102,13 +102,19 @@ class dwm1001_localizer:
                         tag_macID = str(serDataList[2], 'UTF8')
                         t_pose_x = float(serDataList[3])
                         t_pose_y = float(serDataList[4])
-                        t_pose_z = float(serDataList[5])
-                        
-                        # To use this raw pose of DWM1001 as a measurement data in KF
-                        t_pose_xyz = [t_pose_x, t_pose_y, t_pose_z]
-                        t_pose_xyz.shape = (len(t_pose_xyz), 1)    # force to be a column vector 
+                        t_pose_z = float(serDataList[5])   
 
-                        ##### TODO: deal with pose data which are "nan"  #####               
+                        # To use this raw pose of DWM1001 as a measurement data in KF
+                        t_pose_list = [t_pose_x, t_pose_y, t_pose_z]
+
+                        # Discard the pose data from USB if there exists "nan" in the values
+                        if(np.isnan(t_pose_list).any):
+                            pass
+                        else:
+                            t_pose_xyz = np.array(t_pose_list) # numpy array
+
+                        # t_pose_xyz = np.array([t_pose_x, t_pose_y, t_pose_z])
+                        t_pose_xyz.shape = (len(t_pose_xyz), 1)    # force to be a column vector                                       
 
                         if tag_macID not in self.kalman_list:
                             self.kalman_list.append(tag_macID)
@@ -121,20 +127,17 @@ class dwm1001_localizer:
                         # idx = self.kalman_list.index(tag_macID)  # index of the Tag ID
                         if self.kalman_list[tag_id].isKalmanInitialized == False:
                             # Initialize the Kalman by generation and asigning required parameters
-                            # This should be done only once 
+                            # This should be done only once for each tags
                             A, B, H, Q, R, P_0, x_0  = initConstVelocityKF()
                             self.kalman_list[tag_id].assignSystemParameters(A, B, H, Q, R, P_0, x_0)
-                            self.kalman_list[tag_id].isKalmanInitialized = True
-                            # print("This should print only one for a tag")
-                            # print(self.kalman_list[tag_id].isKalmanInitialized)
-                            
-                        # print(self.kalman_list[tag_id].x_m)   
-                        # print(len(self.kalman_list))
-                        # print(self.kalman_list)
+                            self.kalman_list[tag_id].isKalmanInitialized = True                            
+                            # print(self.kalman_list[tag_id].isKalmanInitialized)                           
+                   
                         self.kalman_list[tag_id].performKalmanFilter(t_pose_xyz, 0)  
-                        t_pose_kf = self.kalman_list[tag_id].x_m
+                        t_pose_vel_kf = self.kalman_list[tag_id].x_m  # state vector contains both pose and velocities data
+                        t_pose_kf = t_pose_vel_kf[0:3]  # extract only position data (x,y,z)
                         # print(t_pose_kf)                      
-                        # self.publishTagPoseKF(tag_id, tag_macID, t_pose_kf)
+                        self.publishTagPoseKF(tag_id, tag_macID, t_pose_kf)
 
                 except IndexError:
                     rospy.loginfo("Found index error in the network array!DO SOMETHING!")
