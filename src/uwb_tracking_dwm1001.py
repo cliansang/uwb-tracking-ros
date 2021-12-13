@@ -89,7 +89,7 @@ class dwm1001_localizer:
                     # Publish the Raw Pose Data directly from the USB                     
                     self.publishTagPositions(serialReadLine)    
 
-                    ##################### Kalman Filter ###############
+                    ############### Kalman Filter ###############
                     # Use Kalman filter to process the data and publish it 
                     serDataList = [x.strip() for x in serialReadLine.strip().split(b',')]
 
@@ -108,7 +108,8 @@ class dwm1001_localizer:
                         t_pose_list = [t_pose_x, t_pose_y, t_pose_z]
 
                         # Discard the pose data from USB if there exists "nan" in the values
-                        if(np.isnan(t_pose_list).any):
+                        if(np.isnan(t_pose_list).any()):
+                            # print("Serial data include Nan!")  # just for debug
                             pass
                         else:
                             t_pose_xyz = np.array(t_pose_list) # numpy array
@@ -139,6 +140,8 @@ class dwm1001_localizer:
                         # print(t_pose_kf)                      
                         self.publishTagPoseKF(tag_id, tag_macID, t_pose_kf)
 
+                    ############### Kalman Filter ###############
+
                 except IndexError:
                     rospy.loginfo("Found index error in the network array!DO SOMETHING!")
 
@@ -168,17 +171,23 @@ class dwm1001_localizer:
  
         arrayData = [x.strip() for x in serialData.strip().split(b',')]
 
+        # handle the NaN included in the serial data by discarding them 
+        if(np.isnan(arrayData).any()):            
+            pass
+        else:
+            ser_pose_data = arrayData 
+
         # If getting a tag position
-        if b"POS" in arrayData[0] :
+        if b"POS" in ser_pose_data[0] :
             #rospy.loginfo(arrayData)  # just for debug
 
-            tag_id = str(arrayData[1], 'UTF8')  # IDs in 0 - 15
-            tag_macID = str(arrayData[2], 'UTF8')
+            tag_id = str(ser_pose_data[1], 'UTF8')  # IDs in 0 - 15
+            tag_macID = str(ser_pose_data[2], 'UTF8')
 
             ps = PoseStamped()
-            ps.pose.position.x = float(arrayData[3])
-            ps.pose.position.y = float(arrayData[4])
-            ps.pose.position.z = float(arrayData[5])
+            ps.pose.position.x = float(ser_pose_data[3])
+            ps.pose.position.y = float(ser_pose_data[4])
+            ps.pose.position.z = float(ser_pose_data[5])
             ps.pose.orientation.x = 0.0
             ps.pose.orientation.y = 0.0
             ps.pose.orientation.z = 0.0
@@ -220,7 +229,7 @@ class dwm1001_localizer:
         ps.pose.orientation.z = 0.0
         ps.pose.orientation.w = 1.0
         ps.header.stamp = rospy.Time.now()   
-        ps.header.frame_id = id_str # TODO: use MAC ID of the Tag as a frame ID
+        ps.header.frame_id = id_str # use MAC ID of the Tag as a frame ID for ROS
 
         if id_int not in self.topics_kf:
             self.topics_kf[id_int] = rospy.Publisher("/dwm1001/id_" + str(id_str) + "/pose_kf", PoseStamped, queue_size=100)
