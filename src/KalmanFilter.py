@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Python Implementation of Standard (Discrete) Kalman Filter using numpy
 # The implementation of the Fitler is based on the following paper:
 # http://www.cs.unc.edu/~tracker/media/pdf/SIGGRAPH2001_CoursePack_08.pdf
@@ -10,7 +12,7 @@ class KalmanFilter():
 
     def __init__ (self, A = None, H = None, obj_id=None):        
         if(A is None or obj_id is None):
-            raise ValueError("State Model(A), Transition (H) Matric, and object ID must be provided in object creation!")            
+            raise ValueError("State Model(A) and Transition (H) Matrices must be provided in object creation!")            
         self.n_states = A.shape[1]      # no. of column vectors in A (length of the state vector)
 #         self.m_outputs = H.shape[0]   # no. of row vectors in H (lenght of the meas. vector)
         
@@ -46,7 +48,7 @@ class KalmanFilter():
     def assignSystemParameters(self, A = None, B = None, H = None, Q = None, R = None, P=None, x_0=None): 
                
         if(A is None or H is None):
-            raise ValueError("State Model(A) and  Transition Matric must be provided in KF!")            
+            raise ValueError("State Model(A) and Transition(H) Matrices must be provided in KF!")            
         self.n_states = A.shape[1]      # no. of column vectors in A (length of the state vector)
 #         self.m_outputs = H.shape[0]   # no. of row vectors in H (lenght of the meas. vector)
         
