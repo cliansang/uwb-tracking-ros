@@ -42,7 +42,7 @@ def initConstVelocityKF():
                   [0, 0, v_n[2]]])
     
     '''
-    Process Noise Covariance
+    Process Noise Covariance (6x6)
     Ref1: Survey of Maneuvering Target Tracking. Part I: Dynamic Models bz X. Rong Li and et.
     Ref2: Estimation with applications to Tracking and Navigation by Z. Bar-Shalom and et al. [chap. 6]
     Ref3: Mobile Positioning and Tracking (2nd Edition) by S. Frattasi & F. D. Rosa [sec: 6.4]
@@ -120,7 +120,7 @@ def initConstAccelerationKF():
                     [0, 0, q_t4, 0, 0, q_t3, 0, 0, q_t2],
                     [q_t3, 0, 0, q_t2, 0, 0, dt, 0, 0],
                     [0, q_t3, 0, 0, q_t2, 0, 0, dt, 0],
-                    [0, 0, q_t3, 0, 0, q_t2, 0, 0, dt]
+                    [0, 0, q_t3, 0, 0, q_t2, 0, 0, dt],
                     [q_t2, 0, 0, dt, 0, 0, 1, 0, 0],
                     [0, q_t2, 0, 0, dt, 0, 0, 1, 0],
                     [0, 0, q_t2, 0, 0, dt, 0, 0, 1]])
