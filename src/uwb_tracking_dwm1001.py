@@ -121,15 +121,22 @@ class dwm1001_localizer:
                             self.kalman_list.append(tag_macID)
                             # Suppose constant velocity motion model is used (x,y,z and velocities in 3D)
                             A = np.zeros((6,6))
-                            H = np.zeros((3, 6))  # measurement (x,y,z without velocities)                            
+                            H = np.zeros((3, 6))  # measurement (x,y,z without velocities) 
+
+                            # For constant acceleration model, define the place holders as follows:
+                            # A = np.zeros((9,9)) 
+                            # H = np.zeros((3, 9)) 
+
                             self.kalman_list[tag_id] = kf(A, H, tag_macID) # create KF object for tag id
                             # print(self.kalman_list[tag_id].isKalmanInitialized)
                         
                         # idx = self.kalman_list.index(tag_macID)  # index of the Tag ID
                         if self.kalman_list[tag_id].isKalmanInitialized == False:
-                            # Initialize the Kalman by generation and asigning required parameters
+                            # Initialize the Kalman by asigning required parameters
                             # This should be done only once for each tags
-                            A, B, H, Q, R, P_0, x_0  = initConstVelocityKF()
+                            A, B, H, Q, R, P_0, x_0  = initConstVelocityKF() # for const velocity model
+                            # A, B, H, Q, R, P_0, x_0  = initConstAccelerationKF() # for const acceleration model
+                            
                             self.kalman_list[tag_id].assignSystemParameters(A, B, H, Q, R, P_0, x_0)
                             self.kalman_list[tag_id].isKalmanInitialized = True                            
                             # print(self.kalman_list[tag_id].isKalmanInitialized)                           
