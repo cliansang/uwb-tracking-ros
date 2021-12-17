@@ -75,7 +75,7 @@ class dwm1001_localizer:
             # send command lec, so we can get positions is CSV format
             self.serialPortDWM1001.write(DWM1001_API_COMMANDS.LEC)
             self.serialPortDWM1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
-            rospy.loginfo("Reading DWM1001 coordinates")
+            rospy.loginfo("Reading DWM1001 coordinates and process them!")
         else:
             rospy.loginfo("Can't open port: "+ str(self.serialPortDWM1001.name))
 
@@ -117,7 +117,8 @@ class dwm1001_localizer:
                         # t_pose_xyz = np.array([t_pose_x, t_pose_y, t_pose_z])
                         t_pose_xyz.shape = (len(t_pose_xyz), 1)    # force to be a column vector                                       
 
-                        if tag_macID not in self.kalman_list:
+                        if tag_macID not in self.kalman_list:   # TODO: tag_macID
+                            # self.kalman_list.append(tag_id)
                             self.kalman_list.append(tag_macID)
                             # Suppose constant velocity motion model is used (x,y,z and velocities in 3D)
                             A = np.zeros((6,6))
@@ -126,18 +127,21 @@ class dwm1001_localizer:
                             # For constant acceleration model, define the place holders as follows:
                             # A = np.zeros((9,9)) 
                             # H = np.zeros((3, 9)) 
-
+                            # idx = self.kalman_list.index(tag_id)
                             self.kalman_list[tag_id] = kf(A, H, tag_macID) # create KF object for tag id
+                            # self.kalman_list[tag_id] = kf(A, H, tag_macID) # create KF object for tag id
                             # print(self.kalman_list[tag_id].isKalmanInitialized)
                         
+                        # idx_kf = self.kalman_list.index(tag_id)
                         # idx = self.kalman_list.index(tag_macID)  # index of the Tag ID
-                        if self.kalman_list[tag_id].isKalmanInitialized == False:
+
+                        if self.kalman_list[tag_id].isKalmanInitialized == False:  
                             # Initialize the Kalman by asigning required parameters
                             # This should be done only once for each tags
                             A, B, H, Q, R, P_0, x_0  = initConstVelocityKF() # for const velocity model
                             # A, B, H, Q, R, P_0, x_0  = initConstAccelerationKF() # for const acceleration model
                             
-                            self.kalman_list[tag_id].assignSystemParameters(A, B, H, Q, R, P_0, x_0)
+                            self.kalman_list[tag_id].assignSystemParameters(A, B, H, Q, R, P_0, x_0)  # [tag_id]
                             self.kalman_list[tag_id].isKalmanInitialized = True                            
                             # print(self.kalman_list[tag_id].isKalmanInitialized)                           
                    
@@ -146,7 +150,8 @@ class dwm1001_localizer:
                         t_pose_kf = t_pose_vel_kf[0:3]  # extract only position data (x,y,z)
                         # print(t_pose_kf)                      
                         self.publishTagPoseKF(tag_id, tag_macID, t_pose_kf)
-
+                        # print(len(self.kalman_list))
+                        
                     ############### Kalman Filter ###############
 
                 except IndexError:
@@ -174,15 +179,8 @@ class dwm1001_localizer:
         Publish anchors and tag in topics using Tag and Anchor Object
         :param networkDataArray:  Array from serial port containing all informations, tag xyz and anchor xyz
         :returns: none
-        """
- 
-        arrayData = [x.strip() for x in serialData.strip().split(b',')]
-
-        # handle the NaN included in the serial data by discarding them 
-        if(np.isnan(arrayData).any()):            
-            pass
-        else:
-            ser_pose_data = arrayData 
+        """ 
+        ser_pose_data = [x.strip() for x in serialData.strip().split(b',')]
 
         # If getting a tag position
         if b"POS" in ser_pose_data[0] :
@@ -202,6 +200,8 @@ class dwm1001_localizer:
             ps.header.stamp = rospy.Time.now()   
             ps.header.frame_id = tag_macID # TODO: Currently, MAC ID of the Tag is set as a frame ID 
 
+            raw_pose_xzy = [ps.pose.position.x, ps.pose.position.y, ps.pose.position.z]
+
             if tag_id not in self.topics:
                 self.topics[tag_id] = rospy.Publisher("/dwm1001/id_" + tag_macID + "/pose", PoseStamped, queue_size=100)
                
@@ -212,7 +212,13 @@ class dwm1001_localizer:
                 #    ps.pose.position.z
                 #))
             
-            self.topics[tag_id].publish(ps)
+            # self.topics[tag_id].publish(ps)
+            
+            # Publish only pose data without "NAN"
+            if(np.isnan(raw_pose_xzy).any()): 
+                pass
+            else:
+                self.topics[tag_id].publish(ps)             
 
             # if self.verbose :
             #     rospy.loginfo("Tag " + str(tag_macID) + ": "
