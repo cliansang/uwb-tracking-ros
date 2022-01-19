@@ -53,6 +53,8 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   Tag2AnchorRanges.msg
+  CustomTag.msg
+  MultiTags.msg
  
 )
 
@@ -111,7 +113,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES uwb_tracking_ros
-#  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy std_msgs
+ CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
 

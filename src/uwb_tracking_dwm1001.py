@@ -15,6 +15,8 @@ from KalmanFilter import KalmanFilter as kf
 import numpy as np
 from Helpers_KF import initConstVelocityKF 
 
+from uwb_tracking_ros.msg import CustomTag
+from uwb_tracking_ros.msg import MultiTags
 
 
 class dwm1001_localizer:
@@ -38,6 +40,8 @@ class dwm1001_localizer:
         self.topics_kf = {}
         # Empty list for each tags of Kalman filter 
         self.kalman_list = [] 
+
+        self.multipleTags = MultiTags()
         
         # Serial port settings
         self.dwm_port = rospy.get_param('~port')
@@ -202,8 +206,22 @@ class dwm1001_localizer:
 
             raw_pose_xzy = [ps.pose.position.x, ps.pose.position.y, ps.pose.position.z]
 
+            # TODO: PoseStamped() may be replaced with compatible Custom msgs for uniform msg type
+            # Assign the PoseStamped msg into CustomTag msg
+            tag = CustomTag()
+            tag.header = ps.header
+            tag.pose_x = ps.pose.position.x
+            tag.pose_y = ps.pose.position.y
+            tag.pose_z = ps.pose.position.z
+            tag.orientation_x = ps.pose.orientation.x
+            tag.orientation_y = ps.pose.orientation.y
+            tag.orientation_z = ps.pose.orientation.z
+            tag.orientation_z = ps.pose.orientation.w
+
             if tag_id not in self.topics:
-                self.topics[tag_id] = rospy.Publisher("/dwm1001/id_" + tag_macID + "/pose", PoseStamped, queue_size=100)
+                self.topics[tag_id] = rospy.Publisher("/dwm1001/id_" + tag_macID + "/pose", PoseStamped, queue_size=10)
+                
+                self.multipleTags.TagsList.append(tag) # append custom Tags into the multiple tag msgs
                
                 #rospy.loginfo("New tag {}. x: {}m, y: {}m, z: {}m".format(
                 #    str(tag_id),
@@ -218,7 +236,11 @@ class dwm1001_localizer:
             if(np.isnan(raw_pose_xzy).any()): 
                 pass
             else:
-                self.topics[tag_id].publish(ps)             
+                self.topics[tag_id].publish(ps) 
+
+                # Publish multiple tags data for RVIZ visualization 
+                pub_tags = rospy.Publisher("/dwm1001/multiTags", MultiTags, queue_size=10)  
+                pub_tags.publish(self.multipleTags)          
 
             # if self.verbose :
             #     rospy.loginfo("Tag " + str(tag_macID) + ": "
@@ -245,10 +267,9 @@ class dwm1001_localizer:
         ps.header.frame_id = id_str # use MAC ID of the Tag as a frame ID for ROS
 
         if id_int not in self.topics_kf:
-            self.topics_kf[id_int] = rospy.Publisher("/dwm1001/id_" + str(id_str) + "/pose_kf", PoseStamped, queue_size=100)
+            self.topics_kf[id_int] = rospy.Publisher("/dwm1001/id_" + str(id_str) + "/pose_kf", PoseStamped, queue_size=10)
 
         self.topics_kf[id_int].publish(ps)
-
             
 
     def initializeDWM1001API(self):
