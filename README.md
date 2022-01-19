@@ -31,7 +31,7 @@ pip install numpy
 Build the workspace:
 ```
 cd ~/<your_catkin_workspace>
-catkin_make --build <your_ros_package>
+catkin_make 
 ```
 Then, run the respetive launch file.
 ```
@@ -50,10 +50,10 @@ Follow the steps in [Decawave's DRTLS Guide](https://www.decawave.com/mdek1001/q
 
 The UWB node can be set-up as an anchor, a tag, and listener modes. This repo requires the listener node (or) gateway node to be attached into the PC or remote machine where ROS is running. The task of the listener node is echoing the positioning data of tags that it has heard. Only position data (x, y, z) of the tags in 3D are able to process via listener node (i.e., the ranging data are not available). To set-up the node as a listener, simply switch the dedicated UWB node to a 'passive' mode in the Decawave's RTLS app. 
 
-The update rate of the tag's position can be adjusted within the Decawave's app. However, we recommend setting the update rate to 10 Hz.
+The update rate of the tag's position can be adjusted within the Decawave's app. However, we recommend setting the update rate to 10 Hz (100 ms).
 
 The following is a sample visualization screenshot of two tags on rviz in 3D
 ![rviz_uwb_sample](https://user-images.githubusercontent.com/18302290/144410317-1d5b5a1f-3058-487b-b583-408133118df7.JPG)
 
 ### For TREK1000/EVK1000
-Follow the set-up instructions given for [TREK1000](https://www.decawave.com/wp-content/uploads/2018/09/trek1000_user_manual.pdf) by Decawave. Then, connect the coordinator node (i.e., Anchor 0 in TREK1000) into your machine where ROS is availalbe via USB port. Run the launch file related to TREK1000 from this repo and process further as your requirments. It should be noted that the tag node can also be connected into the your machine. In this case, the scenario will be for navigation or self-navigation purpose where the positiong data is available to the moving tag. 
+Follow the set-up instructions given for [TREK1000](https://www.decawave.com/wp-content/uploads/2018/09/trek1000_user_manual.pdf) by Decawave. Then, connect the coordinator node (i.e., Anchor 0 in TREK1000) into your machine where ROS is availalbe via USB port. Run the launch file related to TREK1000 from this repo and process further as your requirments. It should be noted that the tag node can also be connected into the your machine. In this case, the scenario will be for navigation or self-navigation purpose where the positioning data is available to the moving tag. 
