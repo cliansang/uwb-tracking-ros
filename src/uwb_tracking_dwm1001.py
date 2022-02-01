@@ -42,7 +42,8 @@ class dwm1001_localizer:
         self.kalman_list = [] 
 
         self.multipleTags = MultiTags()
-        
+        self.pub_tags = rospy.Publisher("/dwm1001/multiTags", MultiTags, queue_size=100) 
+                
         # Serial port settings
         self.dwm_port = rospy.get_param('~port')
         self.verbose = rospy.get_param('~verbose', True)
@@ -222,7 +223,7 @@ class dwm1001_localizer:
                 self.topics[tag_id] = rospy.Publisher("/dwm1001/id_" + tag_macID + "/pose", PoseStamped, queue_size=10)
                 
                 self.multipleTags.TagsList.append(tag) # append custom Tags into the multiple tag msgs
-               
+                
                 #rospy.loginfo("New tag {}. x: {}m, y: {}m, z: {}m".format(
                 #    str(tag_id),
                 #    ps.pose.position.x,
@@ -237,10 +238,13 @@ class dwm1001_localizer:
                 pass
             else:
                 self.topics[tag_id].publish(ps) 
+                self.multipleTags.TagsList[int(tag_id)]= tag
 
                 # Publish multiple tags data for RVIZ visualization 
-                pub_tags = rospy.Publisher("/dwm1001/multiTags", MultiTags, queue_size=10)  
-                pub_tags.publish(self.multipleTags)          
+                # pub_tags = rospy.Publisher("/dwm1001/multiTags", MultiTags, queue_size=100)                  
+             
+            self.pub_tags.publish(self.multipleTags)    
+                        
 
             # if self.verbose :
             #     rospy.loginfo("Tag " + str(tag_macID) + ": "
