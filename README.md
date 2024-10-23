@@ -4,6 +4,9 @@ This repo extends the ROS interfaces for the Ultra-Wideband (UWB) Real Time Loca
 
 This project has been originated as a supplementary sub-project for [CITrack](https://cit-ec.de/en/ks/projects/citrack) in [Cognitronics and Sensor Systems](https://www.cit-ec.de/en/ks) Research Group, CITEC, Bielefeld University.
 
+### Updates as of 23.10.2024
+
+For the **ROS2 use case** of this repository, please refer to [this link](https://github.com/lauritz1000/uwb-tracking-ros2), provided and tested by [Lauritz](https://github.com/lauritz1000). For any further inquiries about **_ROS2_**, please address them on that repository.
 
 ## Setups and Installation
 ### DWM1001/MDEK1001 Setup
