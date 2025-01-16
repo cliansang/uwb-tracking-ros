@@ -1,0 +1,14 @@
+# Check if objects in image
+
+# Goal definition
+int16 id
+sensor_msgs/Image image
+
+---
+# Result definition
+int16 id
+citrack_ros_msgs/DarknetBoundingBoxes bounding_boxes
+# darknet_ros_msgs/BoundingBoxes bounding_boxes  # TODO: check wheter it works or not with existing codebase
+
+---
+# Feedback definition

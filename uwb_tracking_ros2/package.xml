@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>uwb_tracking_ros2</name>
+  <version>0.0.0</version>
+  <description>The uwb_tracking_ros2 package</description>
+  <maintainer email="lkeysberg@techfak.uni-bielefeld.de">Lauritz Keysberg</maintainer>
+  <maintainer email="csang@techfak.uni-bielefeld.de">Cung Lian Sang</maintainer>
+  <license>MIT</license>
+
+  <!-- The *depend tags are used to specify dependencies -->
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>custom_msgs</depend>
+
+  <build_depend>rosidl_default_generators</build_depend>
+  <build_export_depend>rosidl_default_runtime</build_export_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

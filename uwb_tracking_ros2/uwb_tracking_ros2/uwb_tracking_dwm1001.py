@@ -8,15 +8,17 @@
     2. https://www.decawave.com/product-documentation/    
 """
 
-import rospy, time, serial, os
-from dwm1001_apiCommands import DWM1001_API_COMMANDS
-from geometry_msgs.msg import PoseStamped
-from KalmanFilter import KalmanFilter as kf
+import rclpy, time, serial, os
 import numpy as np
-from Helpers_KF import initConstVelocityKF 
 
-from uwb_tracking_ros.msg import CustomTag
-from uwb_tracking_ros.msg import MultiTags
+from rclpy.node import Node
+from .dwm1001_apiCommands import DWM1001_API_COMMANDS
+from geometry_msgs.msg import PoseStamped
+from .KalmanFilter import KalmanFilter as kf
+from .Helpers_KF import initConstVelocityKF 
+
+from citrack_ros_msgs.msg import CustomTag
+from citrack_ros_msgs.msg import MultiTags
 
 
 class dwm1001_localizer:
@@ -26,14 +28,14 @@ class dwm1001_localizer:
         Initialize the node, open serial port
         """        
         # Init node
-        rospy.init_node('DWM1001_Listener_Mode', anonymous=False)
+        self.node = rclpy.create_node('DWM1001_Listener_Mode')
 
         # allow serial port to be detected by user
         # NOTE: USB is assumed to be connected to ttyACM0. If not, need to modified it.
         # os.popen("sudo chmod 777 /dev/ttyACM0", "w")  
         
         # Set a ROS rate
-        self.rate = rospy.Rate(1)
+        self.rate = self.node.create_rate(1)
         
         # Empty dictionary to store topics being published
         self.topics = {}
@@ -42,11 +44,14 @@ class dwm1001_localizer:
         self.kalman_list = [] 
 
         self.multipleTags = MultiTags()
-        self.pub_tags = rospy.Publisher("/dwm1001/multiTags", MultiTags, queue_size=100) 
-                
+        self.pub_tags = self.node.create_publisher(MultiTags, "/dwm1001/multiTags", 100) 
+
+
+        self.node.declare_parameter('port', '/dev/ttyACM0')
+        self.node.declare_parameter('verbose', True)
         # Serial port settings
-        self.dwm_port = rospy.get_param('~port')
-        self.verbose = rospy.get_param('~verbose', True)
+        self.dwm_port = self.node.get_parameter('port').get_parameter_value().string_value
+        self.verbose = self.node.get_parameter('verbose').get_parameter_value().bool_value
         self.serialPortDWM1001 = serial.Serial(
             port = self.dwm_port,
             baudrate = 115200,
@@ -72,7 +77,7 @@ class dwm1001_localizer:
 
         # check if the serial port is opened
         if(self.serialPortDWM1001.isOpen()):
-            rospy.loginfo("Port opened: "+ str(self.serialPortDWM1001.name) )
+            self.node.get_logger().info("Port opened: " + str(self.serialPortDWM1001.name))
             # start sending commands to the board so we can initialize the board
             self.initializeDWM1001API()
             # give some time to DWM1001 to wake up
@@ -80,13 +85,13 @@ class dwm1001_localizer:
             # send command lec, so we can get positions is CSV format
             self.serialPortDWM1001.write(DWM1001_API_COMMANDS.LEC)
             self.serialPortDWM1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
-            rospy.loginfo("Reading DWM1001 coordinates and process them!")
+            self.node.get_logger().info("Reading DWM1001 coordinates and process them!")
         else:
-            rospy.loginfo("Can't open port: "+ str(self.serialPortDWM1001.name))
+            self.node.get_logger().info("Can't open port: "+ str(self.serialPortDWM1001.name))
 
         try:
 
-            while not rospy.is_shutdown():
+            while rclpy.ok():
                 # just read everything from serial port
                 serialReadLine = self.serialPortDWM1001.read_until()
 
@@ -100,7 +105,7 @@ class dwm1001_localizer:
 
                     # If getting a tag position
                     if b"POS" in serDataList[0] :
-                        #rospy.loginfo(arrayData)  # just for debug
+                        #self.node.get_logger().info(arrayData)  # just for debug
 
                         tag_id = int(serDataList[1])  
                         # tag_id = str(serDataList[1], 'UTF8')  # IDs in 0 - 15
@@ -160,22 +165,22 @@ class dwm1001_localizer:
                     ############### Kalman Filter ###############
 
                 except IndexError:
-                    rospy.loginfo("Found index error in the network array!DO SOMETHING!")
+                    self.node.get_logger().info("Found index error in the network array!DO SOMETHING!")
 
         except KeyboardInterrupt:
-            rospy.loginfo("Quitting DWM1001 Shell Mode and closing port, allow 1 second for UWB recovery")
+            self.node.get_logger().info("Quitting DWM1001 Shell Mode and closing port, allow 1 second for UWB recovery")
             self.serialPortDWM1001.write(DWM1001_API_COMMANDS.RESET)
             self.serialPortDWM1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
 
         finally:
-            rospy.loginfo("Quitting, and sending reset command to dev board")
+            self.node.get_logger().info("Quitting, and sending reset command to dev board")
             # self.serialPortDWM1001.reset_input_buffer()
             self.serialPortDWM1001.write(DWM1001_API_COMMANDS.RESET)
             self.serialPortDWM1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
             self.rate.sleep()
             serialReadLine = self.serialPortDWM1001.read_until()
             if b"reset" in serialReadLine:
-                rospy.loginfo("succesfully closed ")
+                self.node.get_logger().info("succesfully closed ")
                 self.serialPortDWM1001.close()
 
 
@@ -189,7 +194,7 @@ class dwm1001_localizer:
 
         # If getting a tag position
         if b"POS" in ser_pose_data[0] :
-            #rospy.loginfo(arrayData)  # just for debug
+            #self.node.get_logger().info(arrayData)  # just for debug
 
             tag_id = str(ser_pose_data[1], 'UTF8')  # IDs in 0 - 15
             tag_macID = str(ser_pose_data[2], 'UTF8')
@@ -202,7 +207,7 @@ class dwm1001_localizer:
             ps.pose.orientation.y = 0.0
             ps.pose.orientation.z = 0.0
             ps.pose.orientation.w = 1.0
-            ps.header.stamp = rospy.Time.now()   
+            ps.header.stamp = self.node.get_clock().now().to_msg()
             ps.header.frame_id = tag_macID # TODO: Currently, MAC ID of the Tag is set as a frame ID 
 
             raw_pose_xzy = [ps.pose.position.x, ps.pose.position.y, ps.pose.position.z]
@@ -220,11 +225,11 @@ class dwm1001_localizer:
             tag.orientation_z = ps.pose.orientation.w
 
             if tag_id not in self.topics:
-                self.topics[tag_id] = rospy.Publisher("/dwm1001/id_" + tag_macID + "/pose", PoseStamped, queue_size=10)
+                self.topics[tag_id] = self.node.create_publisher(PoseStamped, "/dwm1001/id_" + tag_macID + "/pose", 10)
                 
-                self.multipleTags.TagsList.append(tag) # append custom Tags into the multiple tag msgs
+                self.multipleTags.tags_list.append(tag) # append custom Tags into the multiple tag msgs
                 
-                #rospy.loginfo("New tag {}. x: {}m, y: {}m, z: {}m".format(
+                #self.node.get_logger().info("New tag {}. x: {}m, y: {}m, z: {}m".format(
                 #    str(tag_id),
                 #    ps.pose.position.x,
                 #    ps.pose.position.y,
@@ -238,7 +243,7 @@ class dwm1001_localizer:
                 pass
             else:
                 self.topics[tag_id].publish(ps) 
-                self.multipleTags.TagsList[int(tag_id)]= tag
+                self.multipleTags.tags_list[int(tag_id)]= tag
 
                 # Publish multiple tags data for RVIZ visualization 
                 # pub_tags = rospy.Publisher("/dwm1001/multiTags", MultiTags, queue_size=100)                  
@@ -247,7 +252,7 @@ class dwm1001_localizer:
                         
 
             # if self.verbose :
-            #     rospy.loginfo("Tag " + str(tag_macID) + ": "
+            #     self.node.get_logger().info("Tag " + str(tag_macID) + ": "
             #         + " x: "
             #         + str(ps.pose.position.x)
             #         + " y: "
@@ -267,11 +272,11 @@ class dwm1001_localizer:
         ps.pose.orientation.y = 0.0
         ps.pose.orientation.z = 0.0
         ps.pose.orientation.w = 1.0
-        ps.header.stamp = rospy.Time.now()   
+        ps.header.stamp = self.node.get_clock().now().to_msg()
         ps.header.frame_id = id_str # use MAC ID of the Tag as a frame ID for ROS
 
         if id_int not in self.topics_kf:
-            self.topics_kf[id_int] = rospy.Publisher("/dwm1001/id_" + str(id_str) + "/pose_kf", PoseStamped, queue_size=10)
+            self.topics_kf[id_int] = self.node.create_publisher(PoseStamped, "/dwm1001/id_" + str(id_str) + "/pose_kf", 10)
 
         self.topics_kf[id_int].publish(ps)
             
@@ -294,16 +299,17 @@ class dwm1001_localizer:
         # send a third one - just in case
         self.serialPortDWM1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
 
-
-def start():
+def main(args=None):
+    rclpy.init()
     dwm1001 = dwm1001_localizer()
-    dwm1001.main()
-
+    try:
+        dwm1001.main()
+        #rclpy.spin(dwm1001)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        dwm1001.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
-    try:
-        start()
-        rospy.spin()
-    except rospy.ROSInterruptException:
-        pass
-        
+    main()

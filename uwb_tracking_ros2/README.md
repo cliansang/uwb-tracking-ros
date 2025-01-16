@@ -1,12 +1,11 @@
-# ROS Interface for the UWB Tracking Demos of Decawave's MDEK1001 and TREK1000 Kits
+# ROS2 Interface for the UWB Tracking Demos of Decawave's MDEK1001 and TREK1000 Kits
 
-This repo extends the ROS interfaces for the Ultra-Wideband (UWB) Real Time Locatin System (RTLS) [demo](https://www.decawave.com/mdek1001/usermanual/) of Decawave's MDEK1001 Dev-boards provided by [TIERS](https://github.com/TIERS/ros-dwm1001-uwb-localization.git) and [Mub @20chix](https://github.com/20chix/dwm1001_ros.git) for the purpose of tracking and visualizing multiple tags in ROS environment. Additionally, we added the Kalman filter on top of the previous works to smoothen the positioning data from the UWB device before sending them as ROS topics. Moreover, we provide the ROS interface for the UWB tracking [demo](https://www.decawave.com/wp-content/uploads/2018/09/trek1000_user_manual.pdf) based on TREK1000/EVK1000 Dev-boards, which we wrote it from scratch, in this repo. The code has been tested under Ubuntu 20.04 LTS with ROS Noetic Ninjemys distribution. It should be noted that this is a work-in-progress research repo and some parts are still in developing states. 
+The `ros2` branch is based on [this repository](https://github.com/lauritz1000/uwb-tracking-ros2), which was created by [Lauritz](https://github.com/lauritz1000).
 
-This project has been originated as a supplementary sub-project for [CITrack](https://cit-ec.de/en/ks/projects/citrack) in [Cognitronics and Sensor Systems](https://www.cit-ec.de/en/ks) Research Group, CITEC, Bielefeld University.
+<!-- This repository is forked from https://github.com/cliansang/uwb-tracking-ros and adapted for use with ROS2 -->
 
-### Updates as of 23.10.2024
+Please note that the custom messages used in this repository are provided as a Git submodule within a separate ROS2 package, namely `citrack_ros_msgs`.
 
-For the **ROS2 use case** of this repository, please refer to [this link](https://github.com/lauritz1000/uwb-tracking-ros2), provided and tested by [Lauritz](https://github.com/lauritz1000). For any further inquiries about **_ROS2_**, please address them on that repository.
 
 ## Setups and Installation
 ### DWM1001/MDEK1001 Setup
@@ -24,28 +23,22 @@ For the **ROS2 use case** of this repository, please refer to [this link](https:
 
 ### Installation
 
-Clone this repo into your catkin workspace and install the dependencies if required 
+Clone this repo into your ros2 workspace and install the dependencies if required 
 ```
-rosdep install --from-paths src --ignore-src -r -y
+git clone -b ros2 https://github.com/cliansang/uwb-tracking-ros.git
+
 pip install pyserial
 pip install numpy
 ```
 
-Build the workspace:
+Build the workspace and run:
 ```
-cd ~/<your_catkin_workspace>
-catkin_make 
-```
-Then, run the respetive launch file.
-```
-roslaunch <your_ros_package>/ <your_launch_file>
-```
+cd ~/<your_ros2_workspace>
+colcon build --symlink-install 
 
-For instance, run the following launch file for the DWM1001 multiple tags tracking scenario:
+source install/setup.bash 
+ros2 run uwb_tracking_ros2 uwb_tracking_dwm1001
 ```
-roslaunch uwb_tracking_ros uwb_tracking_dwm1001.launch
-```
-
 
 ## Getting Started
 ### For DWM1001/MDEK1001 
@@ -55,8 +48,7 @@ The UWB node can be set-up as an anchor, a tag, and listener modes. This repo re
 
 The update rate of the tag's position can be adjusted within the Decawave's app. However, we recommend setting the update rate to 10 Hz (100 ms).
 
-The following is a sample visualization screenshot of two tags on rviz in 3D
-![rviz_uwb_sample](https://user-images.githubusercontent.com/18302290/144410317-1d5b5a1f-3058-487b-b583-408133118df7.JPG)
 
 ### For TREK1000/EVK1000
 Follow the set-up instructions given for [TREK1000](https://www.decawave.com/wp-content/uploads/2018/09/trek1000_user_manual.pdf) by Decawave. Then, connect the coordinator node (i.e., Anchor 0 in TREK1000) into your machine where ROS is availalbe via USB port. Run the launch file related to TREK1000 from this repo and process further as your requirments. It should be noted that the tag node can also be connected into the your machine. In this case, the scenario will be for navigation or self-navigation purpose where the positioning data is available to the moving tag. 
+

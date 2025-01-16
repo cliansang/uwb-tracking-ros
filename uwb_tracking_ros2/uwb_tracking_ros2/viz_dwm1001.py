@@ -9,11 +9,13 @@ from interactive_markers.menu_handler               import *
 from visualization_msgs.msg                         import (InteractiveMarkerControl, Marker, InteractiveMarker)
 from geometry_msgs.msg                              import Point
 from geometry_msgs.msg                              import PoseStamped
+# from uwb_tracking_ros.msg                           import MultiTags
+from citrack_ros_msgs.msg                          import MultiTags
 
 
 server       = None
-rospy.init_node("vizualize_trek1000")
-server = InteractiveMarkerServer("TREK1000_Tags_Server")
+rospy.init_node("vizualize_dwm1001")
+server = InteractiveMarkerServer("DWM1001_Tags_Server")
 
 
 class VisualizeInRviz:
@@ -91,13 +93,12 @@ class VisualizeInRviz:
 
     def TagCallback(self,data):
         """
-        Callback from topic /dwm1001/tag
+        Callback from topic /dwm1001/tag_id/pose
         :param: data of tag
         :returns:
         """
         global server
 
-        # Get the coordinates of the Tag in this format 0 0 0, then split this string using .split() function
         try:
             # Create a new marker with passed coordinates
             position = Point(data.pose.position.x, data.pose.position.y, data.pose.position.z)
@@ -107,18 +108,46 @@ class VisualizeInRviz:
             # Publish marker
             server.applyChanges()
 
-            # TODO remove this after, Debugging purpose
+            # Remove this after, Debugging purpose
             # rospy.loginfo("Tag x: " + str(data.pose.position.x) + 
             # " y: " + str(data.pose.position.y) + " z: " + str(data.pose.position.z))
 
         except ValueError:
            rospy.loginfo("Value error")
+    
+
+    def MultiTagsCallback(self,data):
+        """
+        Callback from topic /dwm1001/multiTags
+        :param: data of tag
+        :returns:
+        """
+        global server
+
+        num_tags = len(data.tags_list)
+
+        for tag in range(num_tags):
+            # Process each tags within the tags_list with their corresponding frame ids
+            try:
+                # Create a new marker with passed coordinates
+                position = Point(data.tags_list[tag].pose_x, data.tags_list[tag].pose_y, data.tags_list[tag].pose_z)
+                # Add description to the marker
+                # self.makeTagMarker(position, "Tag")
+                self.makeTagMarker(position, data.tags_list[tag].header.frame_id)
+                # Publish marker
+                server.applyChanges()
+
+                
+            except ValueError:
+                rospy.loginfo("Value error")
 
 
     def start(self):
         # TODO: auto subscription of multiple tag IDs in a single line (i.e., similar to wildcard)
-        rospy.Subscriber("/trek1000/id_t1/pose", PoseStamped, self.TagCallback)
-        rospy.Subscriber("/trek1000/id_t0/pose", PoseStamped, self.TagCallback)        
+        # rospy.Subscriber("/dwm1001/id_C1A1/pose", PoseStamped, self.TagCallback)
+        # rospy.Subscriber("/dwm1001/id_CE2C/pose", PoseStamped, self.TagCallback)
+
+        rospy.Subscriber("/dwm1001/multiTags", MultiTags, self.MultiTagsCallback) # multiple tags visualization on RVIZ      
         rospy.spin()
 
 

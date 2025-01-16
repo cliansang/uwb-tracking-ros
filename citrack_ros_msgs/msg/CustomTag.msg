@@ -1,4 +1,4 @@
-Header header 
+std_msgs/Header header 
 
 float64 pose_x
 float64 pose_y
