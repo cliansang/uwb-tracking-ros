@@ -6,7 +6,7 @@ This project has been originated as a supplementary sub-project for [CITrack](ht
 
 ### Updates as of 23.10.2024
 
-For the **ROS2 use case** of this repository, please refer to [this link](https://github.com/lauritz1000/uwb-tracking-ros2), provided and tested by [Lauritz](https://github.com/lauritz1000). For any further inquiries about **_ROS2_**, please address them on that repository.
+For the **ROS2 use case** of this repository, please refer to [this link](https://github.com/lauritz1000/uwb-tracking-ros2), provided and tested by [Lauritz](https://github.com/lauritz1000). **Alternatively**, you can also directly check out to the [**ros2 branch**](https://github.com/cliansang/uwb-tracking-ros/tree/ros2/uwb_tracking_ros2) within this repo. 
 
 ## Setups and Installation
 ### DWM1001/MDEK1001 Setup
