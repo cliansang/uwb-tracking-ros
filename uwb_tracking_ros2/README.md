@@ -10,11 +10,11 @@ It is expected that these two packages are placed in the **_src_** folder of _yo
 
 ## Setups and Installation
 ### DWM1001/MDEK1001 Setup
-- Clone this repo into your catkin workspace (see installation section)
+- Clone this repo into your machine (see installation section)
 - Plug the USB cable of the tag acting as either a listener node or gateway node into your machine
 - Check the name of the USB in your machine (typically it is /dev/ttyACM0 in Ubuntu if no other USB is connected into it)
 - Give read-write permission to your USB (i.e., sudo chmod 777 /dev/<your_USB_port> or add it into the user group dialout)
-- Make sure that RTLS is working on the app from the grid view according to the instruction in 'Getting Started' section 
+- Make sure that RTLS is working on the app from the grid view according to the instruction described in 'Getting Started' section 
 
 ### TREK1000/EVK1000 Setup
 - Install the stlink-tools to connect the Dev-board via USB ``` sudo apt install stlink-tools ```
