@@ -4,7 +4,8 @@ The `ros2` branch is based on [this repository](https://github.com/lauritz1000/u
 
 <!-- This repository is forked from https://github.com/cliansang/uwb-tracking-ros and adapted for use with ROS2 -->
 
-Please note that the custom messages used in this repository are provided as a Git submodule within a separate ROS2 package, namely `citrack_ros_msgs`.
+Please note that the `uwb_tracking_ros2` package depends on another ROS2 package, `citrack_ros_msgs`, for custom messages. Both packages are provided in this `ros2` branch.
+It is expected that these two packages are placed in the **_src_** folder of _your ROS2 workspace_.
 
 
 ## Setups and Installation
@@ -23,13 +24,15 @@ Please note that the custom messages used in this repository are provided as a G
 
 ### Installation
 
-Clone this repo into your ros2 workspace and install the dependencies if required 
+Clone this repo and install the dependencies if required 
 ```
 git clone -b ros2 https://github.com/cliansang/uwb-tracking-ros.git
 
 pip install pyserial
 pip install numpy
 ```
+
+There are _two ROS2 packages_ in this repository. These packages should be placed in the **_src_** folder of _your ROS2 workspace_.
 
 Build the workspace and run:
 ```
