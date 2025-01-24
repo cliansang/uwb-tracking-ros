@@ -35,7 +35,7 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             name='uwb_static_tf',
-            arguments=['2.5', '2.5', '0', '0', '0', '0', '1.0', 'map', 'uwb_map'],
+            arguments=['2.5', '2.5', '0', '1.0', '0', '0', '0', 'map', 'uwb_map'],
             condition=IfCondition(LaunchConfiguration('use_static_tf'))
         ),
 

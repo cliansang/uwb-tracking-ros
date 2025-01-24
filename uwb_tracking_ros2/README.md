@@ -48,6 +48,8 @@ source install/setup.bash
 
 ros2 launch uwb_tracking_ros2 uwb_tracking_dwm1001.launch.py
 ```
+To view the UWB tags in Rviz2, select **`Marker`** by navigating to `Add >> By Topic >> /viz_marker_dwm1001 >> Marker`. The tags should then appear on the Rviz screen.
+
 
 ## Getting Started
 ### For DWM1001/MDEK1001 
