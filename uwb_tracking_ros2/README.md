@@ -1,6 +1,6 @@
-# ROS2 Interface for the UWB Tracking Demos of Decawave's MDEK1001 and TREK1000 Kits
+# ROS2 Interface for the UWB Tracking Demos of Decawave's MDEK1001 
 
-The `ros2` branch is based on [this repository](https://github.com/lauritz1000/uwb-tracking-ros2), which was created by [Lauritz](https://github.com/lauritz1000).
+The **`ros2`** branch is based on [this repository](https://github.com/lauritz1000/uwb-tracking-ros2), which was created by [Lauritz](https://github.com/lauritz1000). The `ros2` branch supports only the *DWM1001/MDEK1001* module, and there are currently no plans to support the TREK1000 module. For support of both modules, please refer to the **`ROS1 version`** in the **`main`** branch. 
 
 <!-- This repository is forked from https://github.com/cliansang/uwb-tracking-ros and adapted for use with ROS2 -->
 
@@ -16,11 +16,6 @@ It is expected that these two packages are placed in the **_src_** folder of _yo
 - Give read-write permission to your USB (i.e., sudo chmod 777 /dev/<your_USB_port> or add it into the user group dialout)
 - Make sure that RTLS is working on the app from the grid view according to the instruction described in 'Getting Started' section 
 
-### TREK1000/EVK1000 Setup
-- Install the stlink-tools to connect the Dev-board via USB ``` sudo apt install stlink-tools ```
-- If you are using virtual machine via Windows as a host, [STM32 Virtual COM Port Driver](https://www.st.com/en/development-tools/stsw-stm32102.html) is necessary to install on the host in some cases.
-- Plug the USB cable of the coordinator node (Achor 0) into your machine
-- Give read-write permission to your USB (typically it is /dev/ttyACM0 in Ubuntu if no other USBs are connected)
 
 ### Installation
 
@@ -34,13 +29,24 @@ pip install numpy
 
 There are _two ROS2 packages_ in this repository. These packages should be placed in the **_src_** folder of _your ROS2 workspace_.
 
-Build the workspace and run:
+Build the workspace and run the required commands for your use case:
 ```
 cd ~/<your_ros2_workspace>
+
 colcon build --symlink-install 
 
 source install/setup.bash 
+
 ros2 run uwb_tracking_ros2 uwb_tracking_dwm1001
+
+ros2 run uwb_tracking_ros2 viz_dwm1001
+```
+
+Alternatively, you can run the launch file for both tracking and visualization via Rviz2 with a single command:
+```
+source install/setup.bash 
+
+ros2 launch uwb_tracking_ros2 uwb_tracking_dwm1001.launch.py
 ```
 
 ## Getting Started
@@ -51,7 +57,4 @@ The UWB node can be set-up as an anchor, a tag, and listener modes. This repo re
 
 The update rate of the tag's position can be adjusted within the Decawave's app. However, we recommend setting the update rate to 10 Hz (100 ms).
 
-
-### For TREK1000/EVK1000
-Follow the set-up instructions given for [TREK1000](https://www.decawave.com/wp-content/uploads/2018/09/trek1000_user_manual.pdf) by Decawave. Then, connect the coordinator node (i.e., Anchor 0 in TREK1000) into your machine where ROS is availalbe via USB port. Run the launch file related to TREK1000 from this repo and process further as your requirments. It should be noted that the tag node can also be connected into the your machine. In this case, the scenario will be for navigation or self-navigation purpose where the positioning data is available to the moving tag. 
 
