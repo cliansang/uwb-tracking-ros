@@ -38,6 +38,7 @@ setup(
     entry_points={
         'console_scripts': [
             'uwb_tracking_dwm1001 = uwb_tracking_ros2.uwb_tracking_dwm1001:main',
+            'viz_dwm1001 = uwb_tracking_ros2.viz_dwm1001:main',
             # 'uwb_tracking_trek1000 = uwb_tracking_ros.uwb_tracking_trek1000:main',
             # Example: 'node_name = package.module:function'
         ],
