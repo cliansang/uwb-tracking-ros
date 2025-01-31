@@ -46,8 +46,8 @@ class dwm1001_localizer:
         self.multipleTags = MultiTags()
         self.pub_tags = self.node.create_publisher(MultiTags, "/dwm1001/multiTags", 100) 
 
-        # self.multipleTags_kf = MultiTags()
-        # self.pub_tags_kf = self.node.create_publisher(MultiTags, "/dwm1001/multiTags_kf", 100)
+        self.multipleTags_kf = MultiTags()
+        self.pub_tags_kf = self.node.create_publisher(MultiTags, "/dwm1001/multiTags_kf", 100)
 
 
         self.node.declare_parameter('port', '/dev/ttyACM0')
@@ -285,22 +285,22 @@ class dwm1001_localizer:
         self.topics_kf[id_int].publish(ps)
 
         # # Assign the PoseStamped msg into CustomTag msg
-        # tag_kf = CustomTag()
-        # tag_kf.header = ps.header
-        # tag_kf.pose_x = ps.pose.position.x
-        # tag_kf.pose_y = ps.pose.position.y
-        # tag_kf.pose_z = ps.pose.position.z
-        # tag_kf.orientation_x = ps.pose.orientation.x
-        # tag_kf.orientation_y = ps.pose.orientation.y
-        # tag_kf.orientation_z = ps.pose.orientation.z
-        # tag_kf.orientation_z = ps.pose.orientation.w
+        tag_kf = CustomTag()
+        tag_kf.header = ps.header
+        tag_kf.pose_x = ps.pose.position.x
+        tag_kf.pose_y = ps.pose.position.y
+        tag_kf.pose_z = ps.pose.position.z
+        tag_kf.orientation_x = ps.pose.orientation.x
+        tag_kf.orientation_y = ps.pose.orientation.y
+        tag_kf.orientation_z = ps.pose.orientation.z
+        tag_kf.orientation_z = ps.pose.orientation.w
 
-        # if id_int not in [tag.id for tag in self.multipleTags_kf.tags_list]:
-        #     self.multipleTags_kf.tags_list.append(tag_kf)
-        # else:
-        #     self.multipleTags_kf.tags_list[id_int] = tag_kf
+        if id_int not in [tag.header.frame_id for tag in self.multipleTags_kf.tags_list]:
+            self.multipleTags_kf.tags_list.append(tag_kf)
+        else:
+            self.multipleTags_kf.tags_list[id_int] = tag_kf
         
-        # self.pub_tags_kf.publish(self.multipleTags_kf)
+        self.pub_tags_kf.publish(self.multipleTags_kf)
 
     def initializeDWM1001API(self):
         """
