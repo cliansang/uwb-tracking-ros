@@ -19,15 +19,17 @@ from .Helpers_KF import initConstVelocityKF
 
 from citrack_ros_msgs.msg import CustomTag
 from citrack_ros_msgs.msg import MultiTags
+import traceback
 
 
-class dwm1001_localizer:
+class dwm1001_localizer(Node):
 
     def __init__(self) :
         """
         Initialize the node, open serial port
         """        
         # Init node
+        # super().__init__('DWM1001_Listener_Mode')
         self.node = rclpy.create_node('DWM1001_Listener_Mode')
 
         # allow serial port to be detected by user
@@ -35,7 +37,8 @@ class dwm1001_localizer:
         # os.popen("sudo chmod 777 /dev/ttyACM0", "w")  
         
         # Set a ROS rate
-        self.rate = self.node.create_rate(10)
+        # self.rate = self.create_rate(10)
+        self.rate = self.node.create_rate(10)       
         
         # Empty dictionary to store topics being published
         self.topics = {}
@@ -171,7 +174,12 @@ class dwm1001_localizer:
                     ############### Kalman Filter ###############
 
                 except IndexError:
-                    self.node.get_logger().info("Found index error in the network array!DO SOMETHING!")
+                    self.node.get_logger().info("Found index error in data array!DO SOMETHING!")
+                
+                except Exception as e:
+                    self.node.get_logger().error(f"Unexpected error in loop: {e}")
+                    # self.node.get_logger().error(traceback.format_exc())
+                    pass # TODO: pass this for the moment 
 
             elapsed_time = time.time() - start_time
             sleep_time = max(0, (1.0/10) - elapsed_time)
@@ -179,6 +187,12 @@ class dwm1001_localizer:
 
         except KeyboardInterrupt:
             self.node.get_logger().info("Quitting DWM1001 Shell Mode and closing port, allow 1 second for UWB recovery")
+            self.serialPortDWM1001.write(DWM1001_API_COMMANDS.RESET)
+            self.serialPortDWM1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
+        
+        except Exception as e:
+            self.node.get_logger().error(f"Unexpected error in main: {e}")
+            self.node.get_logger().error(traceback.format_exc())
             self.serialPortDWM1001.write(DWM1001_API_COMMANDS.RESET)
             self.serialPortDWM1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
 
