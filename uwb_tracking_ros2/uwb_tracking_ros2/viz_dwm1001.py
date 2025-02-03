@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from visualization_msgs.msg import Marker
+from visualization_msgs.msg import Marker, MarkerArray
 from std_msgs.msg import ColorRGBA
 from citrack_ros_msgs.msg import MultiTags
 import hashlib
@@ -8,8 +8,11 @@ import hashlib
 class Tag2MarkerPublisher(Node):
     def __init__(self):
         super().__init__('tag_to_marker_publisher')
-        self.publisher = self.create_publisher(Marker, '/viz_marker_dwm1001', 10)
-        self.publisher_kf = self.create_publisher(Marker,'viz_marker_dwm1001_kf', 10)
+        self.publisher = self.create_publisher(Marker, '/viz_marker_dwm1001', 100)
+        self.publisher_kf = self.create_publisher(Marker,'viz_marker_dwm1001_kf', 100)
+        # self.publisher = self.create_publisher(MarkerArray, '/viz_marker_dwm1001', 100)
+        # self.publisher_kf = self.create_publisher(MarkerArray, '/viz_marker_dwm1001_kf', 100)
+
         self.subscription = self.create_subscription(MultiTags, '/dwm1001/multiTags', self.listener_callback, 10)
         self.subscription_kf = self.create_subscription(MultiTags, '/dwm1001/multiTags_kf', self.listener_callback_kf, 10)
 
@@ -23,6 +26,8 @@ class Tag2MarkerPublisher(Node):
         return ColorRGBA(r=r, g=g, b=b, a=0.8)  # Adjust alpha as needed
 
     def listener_callback(self, msg):
+        # marker_array = MarkerArray()
+
         for tag in msg.tags_list:
             # Sphere Marker
             marker = Marker()
@@ -40,6 +45,8 @@ class Tag2MarkerPublisher(Node):
             marker.scale.y = 0.2
             marker.scale.z = 0.2
             marker.color = self.frame_id_to_color(tag.header.frame_id)  # Unique color
+            marker.lifetime.sec = 1  # Auto-remove old markers in RViz
+            # marker_array.markers.append(marker)
             self.publisher.publish(marker)
 
             # Text Marker for displaying frame_id
@@ -57,9 +64,15 @@ class Tag2MarkerPublisher(Node):
             text_marker.scale.z = 0.3  # Font size
             text_marker.color = ColorRGBA(r=1.0, g=1.0, b=1.0, a=1.0)  # White text
             text_marker.text = tag.header.frame_id  # Display frame_id
+            text_marker.lifetime.sec = 1
+            # marker_array.markers.append(text_marker)
             self.publisher.publish(text_marker)
 
+        # self.publisher.publish(marker_array)
+
     def listener_callback_kf(self, msg):
+        # marker_array = MarkerArray()
+
         for tag in msg.tags_list:
             # Sphere Marker for KF
             marker = Marker()
@@ -77,7 +90,9 @@ class Tag2MarkerPublisher(Node):
             marker.scale.y = 0.2
             marker.scale.z = 0.2
             # marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=0.5)  # Green color for KF
-            marker.color = self.frame_id_to_color(tag.header.frame_id)  # Unique color            
+            marker.color = self.frame_id_to_color(tag.header.frame_id)  # Unique color  
+            marker.lifetime.sec = 1  # Auto-remove old markers in RViz
+            # marker_array.markers.append(marker)          
             self.publisher_kf.publish(marker)
 
             # Text Marker for displaying frame_id
@@ -85,7 +100,7 @@ class Tag2MarkerPublisher(Node):
             text_marker.header.frame_id = "uwb_map"
             text_marker.header.stamp = self.get_clock().now().to_msg()
             text_marker.ns = "text_marker"
-            text_marker.id = hash(tag.header.frame_id) % 10000 + 10000  # Unique ID offset for text
+            text_marker.id = hash(tag.header.frame_id) % 10000 + 40000  # Unique ID offset for text
             text_marker.type = Marker.TEXT_VIEW_FACING
             text_marker.action = Marker.ADD
             text_marker.pose.position.x = tag.pose_x
@@ -95,8 +110,11 @@ class Tag2MarkerPublisher(Node):
             text_marker.scale.z = 0.3  # Font size
             text_marker.color = ColorRGBA(r=1.0, g=1.0, b=1.0, a=1.0)  # White text
             text_marker.text = tag.header.frame_id  # Display frame_id
+            text_marker.lifetime.sec = 1
+            # marker_array.markers.append(text_marker)
             self.publisher_kf.publish(text_marker)
 
+        # self.publisher_kf.publish(marker_array)
 
 def main(args=None):
     rclpy.init(args=args)

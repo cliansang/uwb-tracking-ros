@@ -35,7 +35,7 @@ class dwm1001_localizer:
         # os.popen("sudo chmod 777 /dev/ttyACM0", "w")  
         
         # Set a ROS rate
-        self.rate = self.node.create_rate(1)
+        self.rate = self.node.create_rate(10)
         
         # Empty dictionary to store topics being published
         self.topics = {}
@@ -95,8 +95,11 @@ class dwm1001_localizer:
         try:
 
             while rclpy.ok():
+                start_time = time.time()
+
                 # just read everything from serial port
                 serialReadLine = self.serialPortDWM1001.read_until()
+                # print(serialReadLine)
 
                 try:
                     # Publish the Raw Pose Data directly from the USB                     
@@ -134,12 +137,12 @@ class dwm1001_localizer:
                             # self.kalman_list.append(tag_id)
                             self.kalman_list.append(tag_macID)
                             # Suppose constant velocity motion model is used (x,y,z and velocities in 3D)
-                            A = np.zeros((6,6))
-                            H = np.zeros((3, 6))  # measurement (x,y,z without velocities) 
+                            # A = np.zeros((6,6))
+                            # H = np.zeros((3, 6))  # measurement (x,y,z without velocities) 
 
                             # For constant acceleration model, define the place holders as follows:
-                            # A = np.zeros((9,9)) 
-                            # H = np.zeros((3, 9)) 
+                            A = np.zeros((9,9)) 
+                            H = np.zeros((3, 9)) 
                             # idx = self.kalman_list.index(tag_id)
                             self.kalman_list[tag_id] = kf(A, H, tag_macID) # create KF object for tag id
                             # self.kalman_list[tag_id] = kf(A, H, tag_macID) # create KF object for tag id
@@ -169,6 +172,10 @@ class dwm1001_localizer:
 
                 except IndexError:
                     self.node.get_logger().info("Found index error in the network array!DO SOMETHING!")
+
+            elapsed_time = time.time() - start_time
+            sleep_time = max(0, (1.0/10) - elapsed_time)
+            time.sleep(sleep_time)
 
         except KeyboardInterrupt:
             self.node.get_logger().info("Quitting DWM1001 Shell Mode and closing port, allow 1 second for UWB recovery")
@@ -231,13 +238,6 @@ class dwm1001_localizer:
                 self.topics[tag_id] = self.node.create_publisher(PoseStamped, "/dwm1001/id_" + tag_macID + "/pose", 10)
                 
                 self.multipleTags.tags_list.append(tag) # append custom Tags into the multiple tag msgs
-                
-                #self.node.get_logger().info("New tag {}. x: {}m, y: {}m, z: {}m".format(
-                #    str(tag_id),
-                #    ps.pose.position.x,
-                #    ps.pose.position.y,
-                #    ps.pose.position.z
-                #))
             
             # self.topics[tag_id].publish(ps)
             
@@ -252,18 +252,8 @@ class dwm1001_localizer:
                 # Publish multiple tags data for RVIZ visualization 
                 # pub_tags = rospy.Publisher("/dwm1001/multiTags", MultiTags, queue_size=100)                  
              
-            self.pub_tags.publish(self.multipleTags)    
-                        
+            self.pub_tags.publish(self.multipleTags)                     
 
-            # if self.verbose :
-            #     self.node.get_logger().info("Tag " + str(tag_macID) + ": "
-            #         + " x: "
-            #         + str(ps.pose.position.x)
-            #         + " y: "
-            #         + str(ps.pose.position.y)
-            #         + " z: "
-            #         + str(ps.pose.position.z)
-            #     )
     
     # Publish Tag positions using KF 
     def publishTagPoseKF(self, id_int, id_str, kfPoseData):
